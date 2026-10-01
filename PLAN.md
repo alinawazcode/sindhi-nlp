@@ -99,6 +99,7 @@ Train a reproducible XLM-RoBERTa sentiment classifier for Sindhi text, package i
 | `tests/test_split_data.py` | Tests that splits are disjoint, reproducible, and stratified. |
 | `tests/test_predictor.py` | Tests for valid prediction output and edge cases. |
 | `tests/test_api.py` | Tests for the FastAPI health and prediction endpoints. |
+| `tests/conftest.py` | Makes the local `src/` package importable during tests until packaging is configured in Phase 8. |
 | `docs/dataset.md` | Full dataset documentation and label policy. |
 | `docs/model_card.md` | Model purpose, evaluation results, limitations, intended use, and ethical notes. |
 | `docs/api.md` | Request/response examples and endpoint behavior. |
