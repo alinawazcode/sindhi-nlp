@@ -1,16 +1,20 @@
-"""Data preparation utilities for Sindhi sentiment classification."""
+"""Data loading, cleaning, validation, and splitting.
 
-from .clean_data import VALID_LABELS, clean_dataframe, normalize_text
-from .load_data import load_dataset
-from .split_data import create_splits
+The pipeline lives in ``sindhi_nlp.data.split_data`` and is imported from there
+(not here) so ``python -m sindhi_nlp.data.split_data`` runs without warnings.
+"""
+from .clean_data import CleaningOptions, clean_series, clean_text
+from .load_data import load_processed_split, load_raw_directory, read_csv, verify_columns
 from .validate_data import DataValidationError, validate_dataframe
 
 __all__ = [
+    "CleaningOptions",
     "DataValidationError",
-    "VALID_LABELS",
-    "clean_dataframe",
-    "create_splits",
-    "load_dataset",
-    "normalize_text",
+    "clean_series",
+    "clean_text",
+    "load_processed_split",
+    "load_raw_directory",
+    "read_csv",
     "validate_dataframe",
+    "verify_columns",
 ]
