@@ -1,0 +1,32 @@
+{
+  "source": "C:\\Users\\Ali Nawaz\\Documents\\Codex\\2026-10-02\\https-github-com-alinawazcode-https-github\\outputs\\sindhi_sentiment_merged_clean.csv",
+  "random_seed": 42,
+  "split_method": "stratified 80/10/10",
+  "total_rows": 150000,
+  "splits": {
+    "train": {
+      "rows": 120000,
+      "label_counts": {
+        "negative": 40000,
+        "neutral": 40000,
+        "positive": 40000
+      }
+    },
+    "validation": {
+      "rows": 15000,
+      "label_counts": {
+        "negative": 5000,
+        "neutral": 5000,
+        "positive": 5000
+      }
+    },
+    "test": {
+      "rows": 15000,
+      "label_counts": {
+        "negative": 5000,
+        "neutral": 5000,
+        "positive": 5000
+      }
+    }
+  }
+}

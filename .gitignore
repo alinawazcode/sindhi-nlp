@@ -1,0 +1,15 @@
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*.csv
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/metrics/*
+!artifacts/metrics/.gitkeep
+artifacts/reports/*
+!artifacts/reports/.gitkeep
+.venv/
+__pycache__/
+*.py[cod]
+.env
