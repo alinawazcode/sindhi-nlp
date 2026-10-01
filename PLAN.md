@@ -123,3 +123,85 @@ Train a reproducible XLM-RoBERTa sentiment classifier for Sindhi text, package i
 6. Build the `SentimentPredictor` SDK interface and tests.
 7. Add the FastAPI service, Docker support, CLI, and GitHub Actions.
 8. Publish the model to Hugging Face and the package to PyPI after the API and tests are stable.
+
+## Project Phases
+
+### Phase 0: Repository Setup
+
+**Goal:** Create a clean, repeatable project workspace before writing ML code.
+
+**Work:** Confirm the folders, Git ignore rules, Python version, dependency files, and project plan. Keep the raw data and trained-model artifacts out of GitHub.
+
+**Finish when:** A clean clone contains the project structure, `PLAN.md`, and no large dataset/model files are tracked by Git.
+
+### Phase 1: Data Audit And Documentation
+
+**Goal:** Prove that the training data is usable and document what it represents.
+
+**Work:** Inspect labels, empty values, duplicate sentences, sentence lengths, and examples from each class. Document the data source, label meanings, language limitations, and any synthetic or manually labeled content in `data/README.md` and `docs/dataset.md`.
+
+**Finish when:** You can explain where all 150,000 rows came from, what each label means, and why the data is appropriate for sentiment classification.
+
+### Phase 2: Reproducible Data Pipeline
+
+**Goal:** Make cleaning and splitting repeatable from raw input files.
+
+**Work:** Implement `load_data.py`, `clean_data.py`, `validate_data.py`, and `split_data.py`. The pipeline must normalize text, validate the three labels, detect exact duplicate text, and create the same stratified 80/10/10 split from the same seed.
+
+**Finish when:** A single command recreates `train.csv`, `validation.csv`, `test.csv`, `label_mapping.json`, and `split_report.json` with identical row counts.
+
+### Phase 3: Baseline Model
+
+**Goal:** Establish a simple reference score before using deep learning.
+
+**Work:** Train a TF-IDF plus LinearSVC baseline using only training data. Record validation macro-F1, per-class F1, training time, and common mistakes.
+
+**Finish when:** You have a saved baseline metrics report. Do not optimize this model heavily; it is the comparison point for XLM-RoBERTa.
+
+### Phase 4: XLM-RoBERTa Training Pipeline
+
+**Goal:** Fine-tune a multilingual transformer reproducibly.
+
+**Work:** Complete `configs/xlm_roberta_base.yaml`, `train.py`, `trainer.py`, `metrics.py`, `callbacks.py`, `config.py`, and `seed.py`. Start with a small run to verify GPU/CPU setup, saving, evaluation, and logging. Then run the full training job using the training split and choose the best checkpoint by validation macro-F1.
+
+**Finish when:** The model, tokenizer, config, label mapping, seed, and validation metrics are saved together in one versioned model folder.
+
+### Phase 5: Evaluation And Error Analysis
+
+**Goal:** Measure the model honestly and understand its weaknesses.
+
+**Work:** Run the chosen checkpoint once on the untouched test split. Generate accuracy, macro-F1, precision/recall per class, confusion matrix, and a table of misclassified examples. Compare results against the baseline.
+
+**Finish when:** `docs/model_card.md` reports test results, limitations, likely failure cases, hardware used, and the correct intended use of the model.
+
+### Phase 6: Python SDK
+
+**Goal:** Make the trained model easy for another Python developer to use.
+
+**Work:** Implement `SentimentPredictor` in `inference/predictor.py`, shared preprocessing, typed result schemas, and a small CLI. The public interface should accept text and return `label`, `confidence`, and optional class probabilities.
+
+**Finish when:** A developer can install the package locally and make a prediction with a few lines of Python or one terminal command.
+
+### Phase 7: API Service
+
+**Goal:** Make the model available to web and mobile applications.
+
+**Work:** Implement FastAPI entry points, health checks, prediction routes, request validation, structured error responses, and cached model loading. Write API documentation with example requests and responses.
+
+**Finish when:** The service starts locally, `GET /health` reports the loaded model version, and `POST /predict` returns validated predictions.
+
+### Phase 8: Testing, Packaging, And Automation
+
+**Goal:** Make the project safe to change and professional to share.
+
+**Work:** Fill every test file, configure formatting/type checking, write GitHub Actions tests, complete `pyproject.toml`, and build a Docker image. Test malformed text, empty input, missing model files, consistent label mapping, and API responses.
+
+**Finish when:** A clean environment can install the package, run tests, build the container, and start the API without manual fixes.
+
+### Phase 9: Publish And Present
+
+**Goal:** Turn the finished work into a strong public portfolio project.
+
+**Work:** Publish the model to Hugging Face, publish the Python package to PyPI only after versioning is stable, add screenshots/results to the README, and release version `0.1.0`. Keep the repository focused on code, docs, metrics, and small examples rather than the full dataset.
+
+**Finish when:** A visitor can understand the project, reproduce the results, download the model, install the package, and try the API from the README.
