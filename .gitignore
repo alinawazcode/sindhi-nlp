@@ -1,15 +1,39 @@
+# Data (keep folders via .gitkeep)
 data/raw/*
 !data/raw/.gitkeep
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*.csv
+data/processed_old/
+
+# Generated artifacts (keep folders via .gitkeep)
 artifacts/models/*
 !artifacts/models/.gitkeep
 artifacts/metrics/*
 !artifacts/metrics/.gitkeep
 artifacts/reports/*
 !artifacts/reports/.gitkeep
+
+# Python
 .venv/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Secrets (the example file stays tracked)
 .env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
