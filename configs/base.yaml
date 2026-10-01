@@ -1,0 +1,51 @@
+# Shared settings used by every stage of the project.
+seed: 42
+
+labels: [negative, neutral, positive]
+label_mapping:
+  negative: 0
+  neutral: 1
+  positive: 2
+
+columns:
+  text: Text
+  label: Label
+
+# All paths are relative to the project root.
+paths:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  reports_dir: data/reports
+  models_dir: artifacts/models
+  metrics_dir: artifacts/metrics
+  model_reports_dir: artifacts/reports
+
+data:
+  split:
+    train: 0.8
+    validation: 0.1
+    test: 0.1
+
+  # drop   : remove conflicting-label texts entirely and keep the first copy of
+  #          same-label duplicates (prevents train/test leakage; row counts may shrink)
+  # report : only count duplicates, remove nothing (reproduces counts exactly
+  #          if you intentionally keep duplicates)
+  duplicate_policy: drop
+
+  # Extra accepted header names in raw files (matched case-insensitively).
+  raw_text_columns: []
+  raw_label_columns: []
+
+  # Map raw label spellings to canonical labels, e.g. {pos: positive}.
+  label_aliases: {}
+
+  cleaning:
+    unicode_form: NFKC
+    remove_invisible: true     # zero-width space/joiner, BOM, bidi marks, soft hyphen
+    remove_zwnj: false         # ZWNJ (U+200C) is kept unless you decide otherwise
+    remove_tatweel: true       # kashida U+0640
+    strip_diacritics: false    # Arabic harakat
+    # Single-character substitutions. Decide using the variant counts from
+    # your Phase 1 audit, e.g. {"\u0643": "\u06A9"} (Arabic kaf -> Sindhi kaf).
+    char_map: {}
