@@ -37,3 +37,6 @@ dist/
 .DS_Store
 Thumbs.db
 .vscode/
+
+!artifacts/reports/*_summary.md
+!artifacts/metrics/*_validation.json
