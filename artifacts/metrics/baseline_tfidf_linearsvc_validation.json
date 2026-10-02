@@ -1,0 +1,288 @@
+{
+  "config": {
+    "svc": {
+      "C": 1.0,
+      "class_weight": null,
+      "max_iter": 5000
+    },
+    "tfidf": {
+      "analyzer": "word",
+      "lowercase": true,
+      "max_features": 300000,
+      "min_df": 2,
+      "ngram_range": [
+        1,
+        2
+      ],
+      "sublinear_tf": true,
+      "token_pattern": "(?u)[\\w\\u064B-\\u065F\\u0670]+"
+    }
+  },
+  "data": {
+    "train_rows": 120000,
+    "train_sha256": "215a286176494127b299690ba25ba3e7e0992cc96cb6a839eb72eb4834ef2628",
+    "validation_rows": 15000,
+    "validation_sha256": "aad24ccf14cd3d362775a7a0923b6125392736cca5cacecc0c8ce5248ff7ce5d"
+  },
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.0",
+    "scikit-learn": "1.9.1"
+  },
+  "model_name": "baseline_tfidf_linearsvc",
+  "seed": 42,
+  "timing": {
+    "fit_seconds": 15.173,
+    "predict_seconds": 1.293
+  },
+  "top_confusions": [
+    {
+      "count": 1,
+      "predicted": "negative",
+      "true": "positive"
+    },
+    {
+      "count": 1,
+      "predicted": "neutral",
+      "true": "positive"
+    }
+  ],
+  "top_features": {
+    "negative": [
+      {
+        "term": "خراب",
+        "weight": 6.7815
+      },
+      {
+        "term": "نه",
+        "weight": 5.6899
+      },
+      {
+        "term": "پريشان",
+        "weight": 4.1415
+      },
+      {
+        "term": "مايوس",
+        "weight": 3.1243
+      },
+      {
+        "term": "تڪليف",
+        "weight": 2.6302
+      },
+      {
+        "term": "مايوسي",
+        "weight": 2.5559
+      },
+      {
+        "term": "غير",
+        "weight": 2.458
+      },
+      {
+        "term": "پريشاني",
+        "weight": 2.3674
+      },
+      {
+        "term": "تمام پريشان",
+        "weight": 2.3578
+      },
+      {
+        "term": "بلڪل",
+        "weight": 2.3397
+      },
+      {
+        "term": "پريشان رهي",
+        "weight": 2.3276
+      },
+      {
+        "term": "ضايع",
+        "weight": 2.3194
+      },
+      {
+        "term": "ڏک",
+        "weight": 2.282
+      },
+      {
+        "term": "چوري ٿي",
+        "weight": 2.1431
+      },
+      {
+        "term": "تمام خراب",
+        "weight": 2.0696
+      }
+    ],
+    "neutral": [
+      {
+        "term": "ڏيکاريو",
+        "weight": 1.919
+      },
+      {
+        "term": "جاري",
+        "weight": 1.859
+      },
+      {
+        "term": "رهي ٿي",
+        "weight": 1.8358
+      },
+      {
+        "term": "عام",
+        "weight": 1.7193
+      },
+      {
+        "term": "اڪائونٽ آهي",
+        "weight": 1.6658
+      },
+      {
+        "term": "ويو",
+        "weight": 1.608
+      },
+      {
+        "term": "گهربل هو",
+        "weight": 1.5124
+      },
+      {
+        "term": "گهربل",
+        "weight": 1.5006
+      },
+      {
+        "term": "آهي",
+        "weight": 1.4994
+      },
+      {
+        "term": "پهتو",
+        "weight": 1.461
+      },
+      {
+        "term": "گهر هو",
+        "weight": 1.4302
+      },
+      {
+        "term": "پيو وڃي",
+        "weight": 1.3912
+      },
+      {
+        "term": "اڃا",
+        "weight": 1.3604
+      },
+      {
+        "term": "ڳالهايو",
+        "weight": 1.3344
+      },
+      {
+        "term": "سان ڳالهايو",
+        "weight": 1.3344
+      }
+    ],
+    "positive": [
+      {
+        "term": "خوش",
+        "weight": 5.1707
+      },
+      {
+        "term": "تمام",
+        "weight": 4.9244
+      },
+      {
+        "term": "سٺو",
+        "weight": 3.5705
+      },
+      {
+        "term": "سٺي",
+        "weight": 3.283
+      },
+      {
+        "term": "شاندار",
+        "weight": 2.9848
+      },
+      {
+        "term": "بهترين",
+        "weight": 2.8588
+      },
+      {
+        "term": "جلدي",
+        "weight": 2.7392
+      },
+      {
+        "term": "سستي اگهه",
+        "weight": 2.671
+      },
+      {
+        "term": "اگهه خريد",
+        "weight": 2.3945
+      },
+      {
+        "term": "تعريف",
+        "weight": 2.3503
+      },
+      {
+        "term": "سستي",
+        "weight": 2.2853
+      },
+      {
+        "term": "خوشي",
+        "weight": 2.2821
+      },
+      {
+        "term": "تمام پسند",
+        "weight": 2.2643
+      },
+      {
+        "term": "خوشيءَ",
+        "weight": 2.2209
+      },
+      {
+        "term": "يادگار",
+        "weight": 2.2046
+      }
+    ]
+  },
+  "validation_metrics": {
+    "accuracy": 0.9998666666666667,
+    "confusion_matrix": [
+      [
+        5000,
+        0,
+        0
+      ],
+      [
+        0,
+        5000,
+        0
+      ],
+      [
+        1,
+        1,
+        4998
+      ]
+    ],
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "macro_f1": 0.9998666599966661,
+    "macro_precision": 0.9998666933280012,
+    "macro_recall": 0.9998666666666667,
+    "num_examples": 15000,
+    "per_label": {
+      "negative": {
+        "f1": 0.9999000099990001,
+        "precision": 0.9998000399920016,
+        "recall": 1.0,
+        "support": 5000
+      },
+      "neutral": {
+        "f1": 0.9999000099990001,
+        "precision": 0.9998000399920016,
+        "recall": 1.0,
+        "support": 5000
+      },
+      "positive": {
+        "f1": 0.9997999599919984,
+        "precision": 1.0,
+        "recall": 0.9996,
+        "support": 5000
+      }
+    }
+  }
+}
