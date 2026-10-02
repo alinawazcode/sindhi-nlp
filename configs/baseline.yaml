@@ -1,0 +1,22 @@
+# TF-IDF + LinearSVC baseline. Deliberately simple: this is the comparison
+# point for XLM-RoBERTa, so do not tune it heavily.
+model_name: baseline_tfidf_linearsvc
+
+tfidf:
+  analyzer: word
+  # Word characters plus Arabic combining marks, so diacritics do not split words.
+  token_pattern: '(?u)[\w\u064B-\u065F\u0670]+'
+  ngram_range: [1, 2]
+  min_df: 2
+  max_features: 300000
+  sublinear_tf: true
+  lowercase: true
+
+svc:
+  C: 1.0
+  class_weight: null
+  max_iter: 5000
+
+analysis:
+  top_features_per_class: 15
+  max_error_examples: 200
