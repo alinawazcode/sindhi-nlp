@@ -1,32 +1,103 @@
 {
-  "source": "C:\\Users\\Ali Nawaz\\Documents\\Codex\\2026-10-02\\https-github-com-alinawazcode-https-github\\outputs\\sindhi_sentiment_merged_clean.csv",
-  "random_seed": 42,
-  "split_method": "stratified 80/10/10",
-  "total_rows": 150000,
+  "cross_split_text_overlap": {
+    "train_test": 0,
+    "train_validation": 0,
+    "validation_test": 0
+  },
+  "duplicates": {
+    "policy": "drop",
+    "removed_conflict_rows": 0,
+    "removed_duplicate_rows": 0
+  },
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.0",
+    "scikit-learn": "1.9.1"
+  },
+  "label_counts_after_cleaning": {
+    "negative": 50000,
+    "neutral": 50000,
+    "positive": 50000
+  },
+  "labels": [
+    "negative",
+    "neutral",
+    "positive"
+  ],
+  "outputs_sha256": {
+    "label_mapping.json": "37d1487643d4a1642c1528e5f0c316243f4512a863f209bb021a5d9e2e162f97",
+    "test.csv": "0e9e31ba0884d6e6d6af43053b18d8c476aa30fd5e577c91430434334f2d9c24",
+    "train.csv": "215a286176494127b299690ba25ba3e7e0992cc96cb6a839eb72eb4834ef2628",
+    "validation.csv": "aad24ccf14cd3d362775a7a0923b6125392736cca5cacecc0c8ce5248ff7ce5d"
+  },
+  "preprocessing": {
+    "cleaning": {
+      "char_map": {},
+      "remove_invisible": true,
+      "remove_tatweel": true,
+      "remove_zwnj": false,
+      "strip_diacritics": false,
+      "unicode_form": "NFKC"
+    },
+    "label_aliases": {}
+  },
+  "ratios": {
+    "test": 0.1,
+    "train": 0.8,
+    "validation": 0.1
+  },
+  "seed": 42,
+  "sources": [
+    {
+      "file": "combined.csv",
+      "rows": 150000,
+      "sha256": "7e32f7d67d623f5728b20a0231b3afceb927c913cccffe87c8c0d87be1c82523"
+    }
+  ],
   "splits": {
+    "test": {
+      "file": "test.csv",
+      "labels": {
+        "negative": 5000,
+        "neutral": 5000,
+        "positive": 5000
+      },
+      "rows": 15000
+    },
     "train": {
-      "rows": 120000,
-      "label_counts": {
+      "file": "train.csv",
+      "labels": {
         "negative": 40000,
         "neutral": 40000,
         "positive": 40000
-      }
+      },
+      "rows": 120000
     },
     "validation": {
-      "rows": 15000,
-      "label_counts": {
+      "file": "validation.csv",
+      "labels": {
         "negative": 5000,
         "neutral": 5000,
         "positive": 5000
-      }
-    },
-    "test": {
-      "rows": 15000,
-      "label_counts": {
-        "negative": 5000,
-        "neutral": 5000,
-        "positive": 5000
-      }
+      },
+      "rows": 15000
     }
+  },
+  "total_rows_after_cleaning": 150000,
+  "total_rows_read": 150000,
+  "validation": {
+    "conflicting_texts": 0,
+    "duplicate_rows": 0,
+    "duplicate_texts": 0,
+    "invalid_label_rows": 0,
+    "invalid_labels": {},
+    "label_counts": {
+      "negative": 50000,
+      "neutral": 50000,
+      "positive": 50000
+    },
+    "missing_text": 0,
+    "rows": 150000
   }
 }
