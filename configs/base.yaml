@@ -40,6 +40,17 @@ data:
   # Map raw label spellings to canonical labels, e.g. {pos: positive}.
   label_aliases: {}
 
+  # Template-aware splitting. Texts that share a group key stay in the same split,
+  # so near-copies (here: the same sentence with a different weekday) cannot leak
+  # from train into validation/test. Normalizers are regex -> replacement rules
+  # applied in order to build the key. Save this file as UTF-8.
+  grouping:
+    enabled: true
+    ignore_punctuation_digits: false
+    normalizers:
+      - pattern: "اربع|خميس|اڱاري|آچر|جمعي|سومر|ڇنڇر"
+        replace: "<DAY>"
+
   cleaning:
     unicode_form: NFKC
     remove_invisible: true     # zero-width space/joiner, BOM, bidi marks, soft hyphen
