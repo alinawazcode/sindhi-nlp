@@ -10,15 +10,16 @@ import argparse
 import json
 import math
 import platform
+import re
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.model_selection import train_test_split
 
-from ..utils.config import SPLIT_NAMES, load_base_config
+from ..utils.config import SPLIT_NAMES, ConfigError, load_base_config
 from ..utils.logging import get_logger, setup_logging
 from ..utils.seed import set_seed
 from .clean_data import CleaningOptions, clean_series
@@ -33,6 +34,7 @@ from .validate_data import (
 logger = get_logger(__name__)
 
 _PAIRS = (("train", "validation"), ("train", "test"), ("validation", "test"))
+_NOISE_RE = re.compile(r"[\W\d_]+")
 
 
 def _check_ratios(ratios: Mapping[str, float]) -> None:
@@ -84,6 +86,107 @@ def stratified_split(
         "validation": val.reset_index(drop=True),
         "test": test.reset_index(drop=True),
     }
+
+
+def make_group_key_fn(grouping_cfg: Mapping[str, Any]) -> Callable[[str], str]:
+    """Build the function that maps a text to its template ("group") key.
+
+    Texts with the same key are near-copies of each other, for example the same
+    sentence with a different weekday. The normalizers are regex -> replacement
+    rules applied in order.
+    """
+    rules: list[tuple[re.Pattern[str], str]] = []
+    for i, item in enumerate(grouping_cfg.get("normalizers") or []):
+        if not isinstance(item, Mapping) or not isinstance(item.get("pattern"), str):
+            raise ConfigError(f"data.grouping.normalizers[{i}] needs a 'pattern' string")
+        try:
+            rules.append((re.compile(item["pattern"]), str(item.get("replace", ""))))
+        except re.error as exc:
+            raise ConfigError(f"Invalid regex in data.grouping.normalizers[{i}]: {exc}") from exc
+    ignore_noise = bool(grouping_cfg.get("ignore_punctuation_digits", False))
+    if not rules and not ignore_noise:
+        raise ConfigError("data.grouping is enabled but has no normalizers and ignore_punctuation_digits is false")
+
+    def key_fn(text: str) -> str:
+        for pattern, replacement in rules:
+            text = pattern.sub(replacement, text)
+        if ignore_noise:
+            text = _NOISE_RE.sub(" ", text)
+        return " ".join(text.split())
+
+    return key_fn
+
+
+def grouped_stratified_split(
+    df: pd.DataFrame,
+    ratios: Mapping[str, float],
+    seed: int,
+    key_fn: Callable[[str], str],
+    text_col: str = "Text",
+    label_col: str = "Label",
+) -> tuple[dict[str, pd.DataFrame], dict[str, Any]]:
+    """Stratified split that never separates texts sharing a group key.
+
+    Groups are shuffled with the seed and assigned per label (using each
+    group's majority label) until the test and validation budgets are filled;
+    the rest go to train. Because groups move as a unit, sizes can fall a few
+    rows short of the exact ratios, never over for validation and test.
+    """
+    _check_ratios(ratios)
+    df = df.sort_values([text_col, label_col], kind="mergesort").reset_index(drop=True)
+    split_sizes(len(df), ratios)  # raises if there are too few rows
+    df["_group"] = df[text_col].map(key_fn)
+
+    counts = pd.crosstab(df["_group"], df[label_col])
+    sizes = counts.sum(axis=1)
+    majority = counts.idxmax(axis=1)  # ties resolve alphabetically
+    rng = np.random.default_rng(seed)
+
+    assignment: dict[str, str] = {}
+    for label in sorted(counts.columns):
+        groups = sizes[majority == label].sort_index()
+        label_rows = int((df[label_col] == label).sum())
+        budget = {
+            "test": int(round(label_rows * ratios["test"])),
+            "validation": int(round(label_rows * ratios["validation"])),
+        }
+        used = {"test": 0, "validation": 0}
+        for position in rng.permutation(len(groups)):
+            key, size = groups.index[position], int(groups.iloc[position])
+            for name in ("test", "validation"):
+                if used[name] + size <= budget[name]:
+                    used[name] += size
+                    assignment[key] = name
+                    break
+            else:
+                assignment[key] = "train"
+
+    df["_split"] = df["_group"].map(assignment)
+    splits = {
+        name: df[df["_split"] == name]
+        .drop(columns=["_group", "_split"])
+        .sample(frac=1.0, random_state=seed)
+        .reset_index(drop=True)
+        for name in SPLIT_NAMES
+    }
+    empty = [name for name, frame in splits.items() if frame.empty]
+    if empty:
+        raise ValueError(f"Grouped split left {empty} empty; the groups are too large for these ratios")
+
+    info = {
+        "groups": int(len(sizes)),
+        "max_group_size": int(sizes.max()),
+        "group_size_counts": {str(k): int(v) for k, v in sizes.value_counts().sort_index().items()},
+    }
+    return splits, info
+
+
+def group_overlap(
+    splits: Mapping[str, pd.DataFrame], key_fn: Callable[[str], str], text_col: str = "Text"
+) -> dict[str, int]:
+    """Number of group keys shared between each pair of splits."""
+    sets = {name: set(frame[text_col].map(key_fn)) for name, frame in splits.items()}
+    return {f"{a}_{b}": len(sets[a] & sets[b]) for a, b in _PAIRS}
 
 
 def text_overlap(splits: Mapping[str, pd.DataFrame], text_col: str = "Text") -> dict[str, int]:
@@ -165,7 +268,21 @@ def run_pipeline(config_path: str | Path, project_root: str | Path = ".") -> dic
 
     write_csv(df, interim_dir / "merged_clean.csv")
 
-    splits = stratified_split(df, ratios, seed, text_col, label_col)
+    grouping_cfg = data_cfg.get("grouping") or {}
+    grouping_enabled = bool(grouping_cfg.get("enabled"))
+    key_fn = make_group_key_fn(grouping_cfg) if grouping_enabled else None
+    if key_fn is not None:
+        splits, group_info = grouped_stratified_split(df, ratios, seed, key_fn, text_col, label_col)
+        group_overlap_counts = group_overlap(splits, key_fn, text_col)
+        if any(group_overlap_counts.values()):
+            raise DataValidationError(f"Splits share template groups: {group_overlap_counts}")
+        ideal = dict(zip(SPLIT_NAMES, split_sizes(len(df), ratios)))
+        for name, frame in splits.items():
+            if len(frame) != ideal[name]:
+                logger.info("Grouped split: %s has %d rows (exact ratio would be %d)", name, len(frame), ideal[name])
+    else:
+        splits = stratified_split(df, ratios, seed, text_col, label_col)
+        group_info, group_overlap_counts = None, None
     overlap = text_overlap(splits, text_col)
     if any(overlap.values()):
         if policy == "report":
@@ -198,6 +315,8 @@ def run_pipeline(config_path: str | Path, project_root: str | Path = ".") -> dic
             for name, frame in splits.items()
         },
         "cross_split_text_overlap": overlap,
+        "grouping": {"enabled": grouping_enabled, "config": dict(grouping_cfg) if grouping_enabled else None, **(group_info or {})},
+        "cross_split_group_overlap": group_overlap_counts,
         "outputs_sha256": output_hashes,
         "environment": {
             "python": platform.python_version(),
