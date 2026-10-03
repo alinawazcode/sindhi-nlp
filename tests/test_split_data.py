@@ -146,3 +146,98 @@ def test_missing_raw_data_gives_clear_error(make_project):
         path.unlink()
     with pytest.raises(FileNotFoundError, match="Place the source data"):
         run_pipeline(config, root)
+
+
+# ---- grouped (template-aware) splitting ----
+
+from conftest import DAY_GROUPING, templated_frame  # noqa: E402
+from sindhi_nlp.data.split_data import (  # noqa: E402
+    ConfigError,
+    group_overlap,
+    grouped_stratified_split,
+    make_group_key_fn,
+    text_overlap,
+)
+
+
+def test_plain_split_leaks_templates_but_grouped_split_does_not():
+    key_fn = make_group_key_fn(DAY_GROUPING)
+    df = templated_frame()
+
+    plain = stratified_split(df, RATIOS, seed=42)
+    assert sum(group_overlap(plain, key_fn).values()) > 0  # weekday twins cross splits
+
+    grouped, _ = grouped_stratified_split(df, RATIOS, 42, key_fn)
+    assert group_overlap(grouped, key_fn) == {"train_validation": 0, "train_test": 0, "validation_test": 0}
+    assert text_overlap(grouped) == {"train_validation": 0, "train_test": 0, "validation_test": 0}
+
+
+def test_grouped_split_sizes_stratification_and_completeness():
+    df = templated_frame()
+    splits, info = grouped_stratified_split(df, RATIOS, 42, make_group_key_fn(DAY_GROUPING))
+    assert {k: len(v) for k, v in splits.items()} == {"train": 672, "validation": 84, "test": 84}
+    for name, per_label in (("train", 224), ("validation", 28), ("test", 28)):
+        assert splits[name]["Label"].value_counts().to_dict() == {
+            "negative": per_label, "neutral": per_label, "positive": per_label,
+        }
+    assert sorted(pd.concat(splits.values())["Text"]) == sorted(df["Text"])
+    assert info["groups"] == 120 and info["max_group_size"] == 7
+    assert info["group_size_counts"] == {"7": 120}
+
+
+def test_grouped_split_reproducible_and_seed_sensitive():
+    df, key_fn = templated_frame(), make_group_key_fn(DAY_GROUPING)
+    a, _ = grouped_stratified_split(df, RATIOS, 42, key_fn)
+    b, _ = grouped_stratified_split(df.sample(frac=1.0, random_state=9), RATIOS, 42, key_fn)
+    c, _ = grouped_stratified_split(df, RATIOS, 7, key_fn)
+    for name in a:
+        pd.testing.assert_frame_equal(a[name], b[name])
+    assert not a["test"].equals(c["test"])
+
+
+def test_grouped_split_with_uneven_groups_never_exceeds_budgets():
+    rows = [(f"{label} solo {i}", label) for label in ("negative", "neutral", "positive") for i in range(60)]
+    big = templated_frame(frames_per_label=10)
+    df = pd.concat([pd.DataFrame(rows, columns=["Text", "Label"]), big], ignore_index=True)
+    splits, _ = grouped_stratified_split(df, RATIOS, 42, make_group_key_fn(DAY_GROUPING))
+    assert len(splits["test"]) <= round(len(df) * 0.1) + 3
+    assert group_overlap(splits, make_group_key_fn(DAY_GROUPING)) == {
+        "train_validation": 0, "train_test": 0, "validation_test": 0,
+    }
+
+
+def test_group_key_function_rules():
+    key = make_group_key_fn({"normalizers": [{"pattern": "Mon|Tue", "replace": "<DAY>"}], "ignore_punctuation_digits": True})
+    assert key("Sale on Mon, 5 items!") == key("Sale on Tue 7 items") == "Sale on DAY items"
+    with pytest.raises(ConfigError, match="Invalid regex"):
+        make_group_key_fn({"normalizers": [{"pattern": "(unclosed"}]})
+    with pytest.raises(ConfigError, match="pattern"):
+        make_group_key_fn({"normalizers": ["Mon"]})
+    with pytest.raises(ConfigError, match="no normalizers"):
+        make_group_key_fn({"enabled": True})
+
+
+def test_pipeline_with_grouping(make_templated_project):
+    root, config = make_templated_project()
+    report = run_pipeline(config, root)
+    assert report["grouping"]["enabled"] is True
+    assert report["grouping"]["groups"] == 120
+    assert report["cross_split_group_overlap"] == {"train_validation": 0, "train_test": 0, "validation_test": 0}
+    assert {k: v["rows"] for k, v in report["splits"].items()} == {"train": 672, "validation": 84, "test": 84}
+
+
+def test_pipeline_grouping_is_reproducible(make_templated_project):
+    root_a, config_a = make_templated_project("a")
+    root_b, config_b = make_templated_project("b")
+    run_pipeline(config_a, root_a)
+    run_pipeline(config_b, root_b)
+    for rel in ("data/processed/train.csv", "data/processed/validation.csv", "data/processed/test.csv",
+                "data/reports/split_report.json"):
+        assert _sha(root_a / rel) == _sha(root_b / rel), rel
+
+
+def test_pipeline_without_grouping_reports_disabled(make_project):
+    root, config = make_project()
+    report = run_pipeline(config, root)
+    assert report["grouping"] == {"enabled": False, "config": None}
+    assert report["cross_split_group_overlap"] is None
