@@ -5,6 +5,7 @@ data/interim/*
 !data/interim/.gitkeep
 data/processed/*.csv
 data/processed_old/
+data/external/*
 
 # Generated artifacts (keep folders via .gitkeep)
 artifacts/models/*

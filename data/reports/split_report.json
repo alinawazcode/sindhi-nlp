@@ -1,4 +1,9 @@
 {
+  "cross_split_group_overlap": {
+    "train_test": 0,
+    "train_validation": 0,
+    "validation_test": 0
+  },
   "cross_split_text_overlap": {
     "train_test": 0,
     "train_validation": 0,
@@ -15,6 +20,30 @@
     "python": "3.12.0",
     "scikit-learn": "1.9.1"
   },
+  "grouping": {
+    "config": {
+      "enabled": true,
+      "ignore_punctuation_digits": false,
+      "normalizers": [
+        {
+          "pattern": "اربع|خميس|اڱاري|آچر|جمعي|سومر|ڇنڇر",
+          "replace": "<DAY>"
+        }
+      ]
+    },
+    "enabled": true,
+    "group_size_counts": {
+      "1": 113073,
+      "2": 783,
+      "3": 1576,
+      "4": 2028,
+      "5": 1819,
+      "6": 1407,
+      "7": 712
+    },
+    "groups": 121398,
+    "max_group_size": 7
+  },
   "label_counts_after_cleaning": {
     "negative": 50000,
     "neutral": 50000,
@@ -27,9 +56,9 @@
   ],
   "outputs_sha256": {
     "label_mapping.json": "37d1487643d4a1642c1528e5f0c316243f4512a863f209bb021a5d9e2e162f97",
-    "test.csv": "0e9e31ba0884d6e6d6af43053b18d8c476aa30fd5e577c91430434334f2d9c24",
-    "train.csv": "215a286176494127b299690ba25ba3e7e0992cc96cb6a839eb72eb4834ef2628",
-    "validation.csv": "aad24ccf14cd3d362775a7a0923b6125392736cca5cacecc0c8ce5248ff7ce5d"
+    "test.csv": "a860787f3bf0c809e30c717cdc2ca9e640fd07688c05703310641fa69ff424f7",
+    "train.csv": "48fe59c6642c6311ed353f94ac1f29b761567d1d81e1ba88c7c9be59e6aac6ac",
+    "validation.csv": "a34f0cbb53a604977cc87cabc229b7008df455d0c3d2aa46ef3e314efa7469b3"
   },
   "preprocessing": {
     "cleaning": {
