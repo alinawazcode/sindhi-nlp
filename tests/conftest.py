@@ -13,8 +13,8 @@ if str(SRC) not in sys.path:
 LABELS = ["negative", "neutral", "positive"]
 
 
-def base_config(seed: int = 42, policy: str = "drop") -> dict:
-    return {
+def base_config(seed: int = 42, policy: str = "drop", grouping: dict | None = None) -> dict:
+    config = {
         "seed": seed,
         "labels": LABELS,
         "label_mapping": {"negative": 0, "neutral": 1, "positive": 2},
@@ -32,6 +32,9 @@ def base_config(seed: int = 42, policy: str = "drop") -> dict:
             "cleaning": {},
         },
     }
+    if grouping is not None:
+        config["data"]["grouping"] = grouping
+    return config
 
 
 def write_raw_files(raw_dir: Path) -> None:
@@ -72,3 +75,37 @@ def make_project(tmp_path):
 def sample_df() -> pd.DataFrame:
     rows = [(f"{label} نمونو {i}", label) for label in LABELS for i in range(100)]
     return pd.DataFrame(rows, columns=["Text", "Label"])
+
+
+DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+DAY_GROUPING = {"enabled": True, "normalizers": [{"pattern": "|".join(DAYS), "replace": "<DAY>"}]}
+
+
+def templated_frame(frames_per_label: int = 40) -> pd.DataFrame:
+    """Each frame appears once per weekday, so every group has 7 near-identical rows."""
+    rows = [
+        (f"{label} frame {f} on {day}", label)
+        for label in LABELS
+        for f in range(frames_per_label)
+        for day in DAYS
+    ]
+    return pd.DataFrame(rows, columns=["Text", "Label"])
+
+
+@pytest.fixture
+def make_templated_project(tmp_path):
+    """Project whose raw data is weekday-templated and whose config enables grouping."""
+
+    def _make(name: str = "tproj", seed: int = 42, grouping: dict | None = DAY_GROUPING):
+        root = tmp_path / name
+        raw = root / "data" / "raw"
+        raw.mkdir(parents=True)
+        templated_frame().to_csv(raw / "templated.csv", index=False, encoding="utf-8")
+        config_path = root / "base.yaml"
+        config_path.write_text(
+            yaml.safe_dump(base_config(seed, "drop", grouping), allow_unicode=True, sort_keys=False),
+            encoding="utf-8",
+        )
+        return root, config_path
+
+    return _make
