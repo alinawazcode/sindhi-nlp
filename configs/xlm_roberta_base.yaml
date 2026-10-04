@@ -1,0 +1,41 @@
+# XLM-RoBERTa fine-tuning (Phase 4). Paths are relative to the project root.
+model_name: xlm-roberta-base
+run_name: xlmr_base            # output folder: artifacts/models/<run_name>
+
+# Named datasets: each folder must contain train.csv and validation.csv
+# (columns Text, Label). Training never reads test.csv.
+datasets:
+  synthetic: data/processed
+  natural: data/external/processed
+
+train_on: [synthetic, natural]   # combined for training
+validate_on: [natural]           # checkpoint selection uses these validation splits
+report_on: [synthetic]           # extra validation splits: reported, never used to choose a checkpoint
+
+# Optional per-dataset controls (both apply to training data only).
+max_rows: {}                     # e.g. {synthetic: 20000} to subsample (stratified by label)
+repeat: {}                       # e.g. {natural: 5} to repeat a small dataset in training
+
+tokenizer:
+  max_length: 64                 # the run logs token-length percentiles so you can check this
+
+training:
+  learning_rate: 2.0e-5
+  per_device_train_batch_size: 32
+  per_device_eval_batch_size: 64
+  gradient_accumulation_steps: 1
+  num_train_epochs: 4
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  early_stopping_patience: 2     # in evaluations (one per epoch); 0 disables
+  save_total_limit: 2
+  logging_steps: 50
+  dataloader_num_workers: 0
+  fp16: auto                     # auto = on when a CUDA GPU is available
+
+# `--smoke` runs a tiny version to check the whole pipeline end to end.
+smoke:
+  train_rows: 240
+  validation_rows: 90
+  epochs: 1
+  batch_size: 8
