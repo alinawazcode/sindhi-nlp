@@ -55,7 +55,10 @@ def make_hf_compute_metrics(labels_by_id: Sequence[str]) -> Callable[[Any], dict
     ids = list(range(len(names)))
 
     def _compute(eval_pred: Any) -> dict[str, float]:
-        logits, label_ids = eval_pred[0], eval_pred[1]
+        logits = getattr(eval_pred, "predictions", None)
+        label_ids = getattr(eval_pred, "label_ids", None)
+        if logits is None:  # a plain (predictions, label_ids) tuple
+            logits, label_ids = eval_pred[0], eval_pred[1]
         if isinstance(logits, tuple):
             logits = logits[0]
         predictions = np.argmax(logits, axis=-1)
