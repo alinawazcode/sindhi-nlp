@@ -103,5 +103,3 @@ def test_smoke_run_and_external_evaluation(tiny_project):
     report = evaluate_model(smoke_dir, "data/external/processed/validation.csv", "validation",
                             base_config_path=root / "base.yaml", project_root=root)
     assert report["metrics"]["num_examples"] > 0
-
-    
