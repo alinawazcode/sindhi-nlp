@@ -1,0 +1,90 @@
+{
+  "dataset": {
+    "file": "validation.csv",
+    "rows": 442,
+    "split": "validation",
+    "tag": "external"
+  },
+  "metrics": {
+    "accuracy": 0.6018099547511312,
+    "confusion_matrix": [
+      [
+        92,
+        28,
+        30
+      ],
+      [
+        32,
+        101,
+        9
+      ],
+      [
+        15,
+        62,
+        73
+      ]
+    ],
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "macro_f1": 0.6001789052318648,
+    "macro_precision": 0.6141506764670538,
+    "macro_recall": 0.6037558685446011,
+    "num_examples": 442,
+    "per_label": {
+      "negative": {
+        "f1": 0.6366782006920415,
+        "precision": 0.6618705035971223,
+        "recall": 0.6133333333333333,
+        "support": 150
+      },
+      "neutral": {
+        "f1": 0.6066066066066066,
+        "precision": 0.5287958115183246,
+        "recall": 0.7112676056338029,
+        "support": 142
+      },
+      "positive": {
+        "f1": 0.5572519083969466,
+        "precision": 0.6517857142857143,
+        "recall": 0.4866666666666667,
+        "support": 150
+      }
+    }
+  },
+  "model": "baseline_tfidf_linearsvc",
+  "top_confusions": [
+    {
+      "count": 62,
+      "predicted": "neutral",
+      "true": "positive"
+    },
+    {
+      "count": 32,
+      "predicted": "negative",
+      "true": "neutral"
+    },
+    {
+      "count": 30,
+      "predicted": "positive",
+      "true": "negative"
+    },
+    {
+      "count": 28,
+      "predicted": "neutral",
+      "true": "negative"
+    },
+    {
+      "count": 15,
+      "predicted": "negative",
+      "true": "positive"
+    },
+    {
+      "count": 9,
+      "predicted": "positive",
+      "true": "neutral"
+    }
+  ]
+}

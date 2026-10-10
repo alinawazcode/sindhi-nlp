@@ -1,0 +1,148 @@
+{
+  "cross_split_group_overlap": {
+    "train_test": 0,
+    "train_validation": 0,
+    "validation_test": 0
+  },
+  "cross_split_text_overlap": {
+    "train_test": 0,
+    "train_validation": 0,
+    "validation_test": 0
+  },
+  "duplicates": {
+    "policy": "drop",
+    "removed_conflict_rows": 0,
+    "removed_duplicate_rows": 0
+  },
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.0",
+    "scikit-learn": "1.9.1"
+  },
+  "grouping": {
+    "group_size_counts": {
+      "1": 4402,
+      "2": 9
+    },
+    "groups": 4411,
+    "ignore_punctuation_digits": true,
+    "max_group_size": 2
+  },
+  "label_counts_after_cleaning": {
+    "negative": 1500,
+    "neutral": 1419,
+    "positive": 1501
+  },
+  "labels": [
+    "negative",
+    "neutral",
+    "positive"
+  ],
+  "outputs_sha256": {
+    "test.csv": "a8232b98b8fb6854da5cce4133e68d808fd0061a293b25ea7ee2bc66fad34a73",
+    "train.csv": "aa5be9fec6994a287b6554f8538d6875ce9f6e238f58765907e9690525f37a34",
+    "validation.csv": "a3d61d8fb33bf7c893486582d5827f1711596e523cbf6b974fcd3f43216ef9ee"
+  },
+  "preprocessing": {
+    "cleaning": {
+      "char_map": {},
+      "remove_invisible": true,
+      "remove_tatweel": true,
+      "remove_zwnj": false,
+      "strip_diacritics": false,
+      "unicode_form": "NFKC"
+    },
+    "label_aliases": {}
+  },
+  "ratios": {
+    "test": 0.2,
+    "train": 0.7,
+    "validation": 0.1
+  },
+  "seed": 42,
+  "source": {
+    "file": "natural_sindhi.csv",
+    "rows": 4420,
+    "sha256": "9c4ccf69f0855096fe7cfbf09a8a38516e762a0a431c458394da67b5ee24d1c0"
+  },
+  "splits": {
+    "test": {
+      "file": "test.csv",
+      "labels": {
+        "negative": 300,
+        "neutral": 284,
+        "positive": 300
+      },
+      "rows": 884
+    },
+    "train": {
+      "file": "train.csv",
+      "labels": {
+        "negative": 1050,
+        "neutral": 993,
+        "positive": 1051
+      },
+      "rows": 3094
+    },
+    "validation": {
+      "file": "validation.csv",
+      "labels": {
+        "negative": 150,
+        "neutral": 142,
+        "positive": 150
+      },
+      "rows": 442
+    }
+  },
+  "synthetic_overlap": {
+    "compared_files": [
+      "train.csv",
+      "validation.csv"
+    ],
+    "rows_per_split": {
+      "test": 0,
+      "train": 0,
+      "validation": 0
+    },
+    "share_of_natural_rows": 0.0,
+    "total_rows": 0
+  },
+  "text_statistics": {
+    "vocabulary_size": 9060,
+    "words_per_label": {
+      "negative": {
+        "mean_words": 13.112,
+        "std_words": 8.77
+      },
+      "neutral": {
+        "mean_words": 13.028,
+        "std_words": 7.934
+      },
+      "positive": {
+        "mean_words": 13.855,
+        "std_words": 9.297
+      }
+    },
+    "words_per_text": {
+      "max": 54,
+      "mean": 13.337,
+      "min": 2
+    }
+  },
+  "total_rows_after_cleaning": 4420,
+  "validation": {
+    "conflicting_texts": 0,
+    "duplicate_rows": 0,
+    "duplicate_texts": 0,
+    "invalid_label_rows": 0,
+    "invalid_labels": {},
+    "label_counts": {
+      "negative": 1500,
+      "neutral": 1419,
+      "positive": 1501
+    },
+    "missing_text": 0,
+    "rows": 4420
+  }
+}

@@ -119,3 +119,19 @@ def test_source_never_references_test_split():
 
     source = inspect.getsource(baseline)
     assert "test.csv" not in source.replace("``test.csv``", "")
+
+
+def test_baseline_on_another_data_dir_with_its_own_name(project):
+    import shutil
+
+    root, base, cfg = project
+    other = root / "data" / "natural"
+    shutil.copytree(root / "data" / "processed", other)
+    first = run_baseline(base, cfg, root)
+    second = run_baseline(base, cfg, root, data_dir="data/natural", model_name="baseline_natural")
+
+    assert second["model_name"] == "baseline_natural" and second["data_dir"] == "data/natural"
+    assert (root / "artifacts" / "models" / "baseline_natural" / "model.joblib").is_file()
+    assert (root / "artifacts" / "models" / "baseline_test" / "model.joblib").is_file()  # first run untouched
+    assert (root / "artifacts" / "reports" / "baseline_natural_summary.md").is_file()
+    assert first["validation_metrics"] == second["validation_metrics"]  # same data, same result

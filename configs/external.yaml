@@ -1,0 +1,19 @@
+# Human-labeled natural Sindhi sentences, kept separate from the synthetic 150k.
+# Paths are relative to the project root. Do NOT put this file in data/raw/.
+source_file: data/external/natural_sindhi.csv
+text_column: Sindhi Text      # header names in your file (matched case-insensitively)
+label_column: Sentiment
+
+duplicate_policy: drop        # drop | report (same meaning as in base.yaml)
+
+# Fixed 70/10/20 split. The test part is locked: run it once, at the very end.
+split:
+  train: 0.7
+  validation: 0.1
+  test: 0.2
+
+output_dir: data/external/processed
+
+# Texts are compared against these synthetic splits to detect contamination.
+# The synthetic test split is intentionally not listed.
+compare_with: [data/processed/train.csv, data/processed/validation.csv]

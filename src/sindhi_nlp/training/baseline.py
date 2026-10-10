@@ -137,7 +137,15 @@ def run_baseline(
     base_config_path: str | Path = "configs/base.yaml",
     baseline_config_path: str | Path = "configs/baseline.yaml",
     project_root: str | Path = ".",
+    data_dir: str | Path | None = None,
+    model_name: str | None = None,
 ) -> dict[str, Any]:
+    """Train on ``<data_dir>/train.csv`` and evaluate on ``<data_dir>/validation.csv``.
+
+    ``data_dir`` defaults to the synthetic processed folder from the base config;
+    pass ``data/external/processed`` for the natural dataset, together with a new
+    ``model_name`` so the earlier baseline is not overwritten.
+    """
     root = Path(project_root).resolve()
     base_cfg = load_base_config(base_config_path)
     cfg = load_config(baseline_config_path, required=REQUIRED_BASELINE_KEYS)
@@ -147,7 +155,7 @@ def run_baseline(
     labels: list[str] = list(base_cfg["labels"])
     text_col, label_col = base_cfg["columns"]["text"], base_cfg["columns"]["label"]
     paths = base_cfg["paths"]
-    processed = root / paths["processed_dir"]
+    processed = root / (data_dir if data_dir is not None else paths["processed_dir"])
     models_dir = root / paths.get("models_dir", "artifacts/models")
     metrics_dir = root / paths.get("metrics_dir", "artifacts/metrics")
     reports_dir = root / paths.get("model_reports_dir", "artifacts/reports")
@@ -176,10 +184,11 @@ def run_baseline(
     )
     features = top_features(pipeline, int(analysis.get("top_features_per_class", 15)))
 
-    model_name = cfg["model_name"]
+    model_name = model_name or cfg["model_name"]
     config_snapshot = {k: cfg[k] for k in ("tfidf", "svc") if k in cfg}
     report: dict[str, Any] = {
         "model_name": model_name,
+        "data_dir": str(Path(data_dir) if data_dir is not None else paths["processed_dir"]),
         "seed": seed,
         "config": config_snapshot,
         "data": {
@@ -222,11 +231,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", default="configs/base.yaml")
     parser.add_argument("--baseline-config", default="configs/baseline.yaml")
     parser.add_argument("--project-root", default=".")
+    parser.add_argument("--data-dir", default=None, help="Folder with train.csv and validation.csv (default: synthetic)")
+    parser.add_argument("--model-name", default=None, help="Output name, e.g. baseline_natural")
     parser.add_argument("--log-level", default="INFO")
     args = parser.parse_args(argv)
 
     setup_logging(args.log_level)
-    report = run_baseline(args.config, args.baseline_config, args.project_root)
+    report = run_baseline(args.config, args.baseline_config, args.project_root, args.data_dir, args.model_name)
 
     m = report["validation_metrics"]
     print(f"Validation macro-F1: {m['macro_f1']:.4f}   accuracy: {m['accuracy']:.4f}")

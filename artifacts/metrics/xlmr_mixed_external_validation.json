@@ -1,0 +1,59 @@
+{
+  "dataset": {
+    "file": "validation.csv",
+    "rows": 442,
+    "split": "validation",
+    "tag": "external"
+  },
+  "metrics": {
+    "accuracy": 0.8868778280542986,
+    "confusion_matrix": [
+      [
+        140,
+        4,
+        6
+      ],
+      [
+        16,
+        119,
+        7
+      ],
+      [
+        14,
+        3,
+        133
+      ]
+    ],
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "macro_f1": 0.8872361167137287,
+    "macro_precision": 0.8929775867729131,
+    "macro_recall": 0.8860093896713614,
+    "num_examples": 442,
+    "per_label": {
+      "negative": {
+        "f1": 0.875,
+        "precision": 0.8235294117647058,
+        "recall": 0.9333333333333333,
+        "support": 150
+      },
+      "neutral": {
+        "f1": 0.8880597014925373,
+        "precision": 0.9444444444444444,
+        "recall": 0.8380281690140845,
+        "support": 142
+      },
+      "positive": {
+        "f1": 0.8986486486486487,
+        "precision": 0.910958904109589,
+        "recall": 0.8866666666666667,
+        "support": 150
+      }
+    }
+  },
+  "model": "xlmr_mixed",
+  "top_confusions": []
+}

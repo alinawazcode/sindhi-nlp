@@ -1,21 +1,40 @@
-# Data (keep folders via .gitkeep)
+# ---- Data (keep folder markers via .gitkeep) ----
 data/raw/*
 !data/raw/.gitkeep
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*.csv
 data/processed_old/
-data/external/*
 
-# Generated artifacts (keep folders via .gitkeep)
+# Human-labeled natural dataset: ignored (check the license before publishing).
+# Only the split report is tracked; it holds counts and hashes, no text.
+data/external/*
+!data/external/processed/
+data/external/processed/*
+!data/external/processed/split_report.json
+
+# ---- Generated artifacts (keep folders via .gitkeep) ----
+# Model weights are 1 GB+: publish them on Hugging Face, not in Git.
 artifacts/models/*
 !artifacts/models/.gitkeep
+
+# Metrics JSON and written summaries are small and make good evidence.
+# Misclassified-sentence CSVs contain dataset text, so they stay ignored.
 artifacts/metrics/*
 !artifacts/metrics/.gitkeep
+!artifacts/metrics/*.json
 artifacts/reports/*
 !artifacts/reports/.gitkeep
+!artifacts/reports/*_summary.md
 
-# Python
+# ---- Large or transfer files ----
+*.zip
+*.safetensors
+*.joblib
+*.pt
+*.ckpt
+
+# ---- Python ----
 .venv/
 __pycache__/
 *.py[cod]
@@ -26,18 +45,15 @@ __pycache__/
 build/
 dist/
 
-# Notebooks
+# ---- Notebooks ----
 .ipynb_checkpoints/
 
-# Secrets (the example file stays tracked)
+# ---- Secrets (the example file stays tracked) ----
 .env
 .env.*
 !.env.example
 
-# OS / editor
+# ---- OS / editor ----
 .DS_Store
 Thumbs.db
 .vscode/
-
-!artifacts/reports/*_summary.md
-!artifacts/metrics/*_validation.json

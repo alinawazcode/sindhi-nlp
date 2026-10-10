@@ -1,0 +1,309 @@
+{
+  "config": {
+    "svc": {
+      "C": 1.0,
+      "class_weight": null,
+      "max_iter": 5000
+    },
+    "tfidf": {
+      "analyzer": "word",
+      "lowercase": true,
+      "max_features": 300000,
+      "min_df": 2,
+      "ngram_range": [
+        1,
+        2
+      ],
+      "sublinear_tf": true,
+      "token_pattern": "(?u)[\\w\\u064B-\\u065F\\u0670]+"
+    }
+  },
+  "data": {
+    "train_rows": 3094,
+    "train_sha256": "aa5be9fec6994a287b6554f8538d6875ce9f6e238f58765907e9690525f37a34",
+    "validation_rows": 442,
+    "validation_sha256": "a3d61d8fb33bf7c893486582d5827f1711596e523cbf6b974fcd3f43216ef9ee"
+  },
+  "data_dir": "data\\external\\processed",
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.0",
+    "scikit-learn": "1.9.1"
+  },
+  "model_name": "baseline_natural",
+  "seed": 42,
+  "timing": {
+    "fit_seconds": 0.345,
+    "predict_seconds": 0.026
+  },
+  "top_confusions": [
+    {
+      "count": 12,
+      "predicted": "positive",
+      "true": "neutral"
+    },
+    {
+      "count": 12,
+      "predicted": "negative",
+      "true": "positive"
+    },
+    {
+      "count": 11,
+      "predicted": "positive",
+      "true": "negative"
+    },
+    {
+      "count": 10,
+      "predicted": "negative",
+      "true": "neutral"
+    },
+    {
+      "count": 10,
+      "predicted": "neutral",
+      "true": "positive"
+    },
+    {
+      "count": 4,
+      "predicted": "neutral",
+      "true": "negative"
+    }
+  ],
+  "top_features": {
+    "negative": [
+      {
+        "term": "نه",
+        "weight": 3.5294
+      },
+      {
+        "term": "خراب",
+        "weight": 1.8874
+      },
+      {
+        "term": "پريشان",
+        "weight": 1.8808
+      },
+      {
+        "term": "ناانصافي",
+        "weight": 1.7825
+      },
+      {
+        "term": "سخت",
+        "weight": 1.55
+      },
+      {
+        "term": "نقصان",
+        "weight": 1.5129
+      },
+      {
+        "term": "ڪاوڙ",
+        "weight": 1.4728
+      },
+      {
+        "term": "غلط",
+        "weight": 1.4168
+      },
+      {
+        "term": "اونداهي",
+        "weight": 1.4144
+      },
+      {
+        "term": "بيروزگاري",
+        "weight": 1.3937
+      },
+      {
+        "term": "کوٽ",
+        "weight": 1.3805
+      },
+      {
+        "term": "پريشاني",
+        "weight": 1.3791
+      },
+      {
+        "term": "هيءَ",
+        "weight": 1.3578
+      },
+      {
+        "term": "انتهائي",
+        "weight": 1.3493
+      },
+      {
+        "term": "ناهي",
+        "weight": 1.3486
+      }
+    ],
+    "neutral": [
+      {
+        "term": "پاڪستان",
+        "weight": 3.9549
+      },
+      {
+        "term": "شروع",
+        "weight": 2.0678
+      },
+      {
+        "term": "اهي",
+        "weight": 2.0339
+      },
+      {
+        "term": "ڊاڪٽر",
+        "weight": 1.9499
+      },
+      {
+        "term": "بازار",
+        "weight": 1.8375
+      },
+      {
+        "term": "شهر",
+        "weight": 1.7353
+      },
+      {
+        "term": "بجيٽ",
+        "weight": 1.4736
+      },
+      {
+        "term": "اعلان",
+        "weight": 1.4495
+      },
+      {
+        "term": "خاموش",
+        "weight": 1.4352
+      },
+      {
+        "term": "اسپتال",
+        "weight": 1.4235
+      },
+      {
+        "term": "پاڪستاني",
+        "weight": 1.423
+      },
+      {
+        "term": "ڪتاب",
+        "weight": 1.3855
+      },
+      {
+        "term": "ڪاروباري",
+        "weight": 1.3377
+      },
+      {
+        "term": "هو",
+        "weight": 1.3377
+      },
+      {
+        "term": "ڪاليج",
+        "weight": 1.2923
+      }
+    ],
+    "positive": [
+      {
+        "term": "پنهنجي",
+        "weight": 2.5811
+      },
+      {
+        "term": "خوشي",
+        "weight": 2.4665
+      },
+      {
+        "term": "خوش",
+        "weight": 2.189
+      },
+      {
+        "term": "خوشگوار",
+        "weight": 1.9756
+      },
+      {
+        "term": "حاصل",
+        "weight": 1.7867
+      },
+      {
+        "term": "پيار",
+        "weight": 1.7436
+      },
+      {
+        "term": "ڪامياب",
+        "weight": 1.6986
+      },
+      {
+        "term": "پهريون",
+        "weight": 1.6427
+      },
+      {
+        "term": "خير",
+        "weight": 1.5918
+      },
+      {
+        "term": "محبت",
+        "weight": 1.5757
+      },
+      {
+        "term": "سان",
+        "weight": 1.5558
+      },
+      {
+        "term": "سفر",
+        "weight": 1.5458
+      },
+      {
+        "term": "مدد",
+        "weight": 1.5364
+      },
+      {
+        "term": "روح",
+        "weight": 1.5233
+      },
+      {
+        "term": "آخرڪار",
+        "weight": 1.5098
+      }
+    ]
+  },
+  "validation_metrics": {
+    "accuracy": 0.8665158371040724,
+    "confusion_matrix": [
+      [
+        135,
+        4,
+        11
+      ],
+      [
+        10,
+        120,
+        12
+      ],
+      [
+        12,
+        10,
+        128
+      ]
+    ],
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "macro_f1": 0.8665141278744333,
+    "macro_precision": 0.8676923729099891,
+    "macro_recall": 0.8661345852895149,
+    "num_examples": 442,
+    "per_label": {
+      "negative": {
+        "f1": 0.8794788273615635,
+        "precision": 0.8598726114649682,
+        "recall": 0.9,
+        "support": 150
+      },
+      "neutral": {
+        "f1": 0.8695652173913043,
+        "precision": 0.8955223880597015,
+        "recall": 0.8450704225352113,
+        "support": 142
+      },
+      "positive": {
+        "f1": 0.8504983388704319,
+        "precision": 0.847682119205298,
+        "recall": 0.8533333333333334,
+        "support": 150
+      }
+    }
+  }
+}

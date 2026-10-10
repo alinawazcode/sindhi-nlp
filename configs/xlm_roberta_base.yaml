@@ -17,7 +17,7 @@ max_rows: {}                     # e.g. {synthetic: 20000} to subsample (stratif
 repeat: {}                       # e.g. {natural: 5} to repeat a small dataset in training
 
 tokenizer:
-  max_length: 64                 # the run logs token-length percentiles so you can check this
+  max_length: 128                 # the run logs token-length percentiles so you can check this
 
 training:
   learning_rate: 2.0e-5
