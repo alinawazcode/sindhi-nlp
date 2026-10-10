@@ -1,0 +1,32 @@
+{
+  "agreement": {
+    "both_right": 712,
+    "both_wrong": 41,
+    "only_a_wrong": 75,
+    "only_b_wrong": 56
+  },
+  "dataset_tag": "external",
+  "mcnemar_exact_p_value": 0.11545448829225959,
+  "models": {
+    "a": {
+      "accuracy": 0.8687782805429864,
+      "accuracy_95ci": [
+        0.8449,
+        0.8894
+      ],
+      "macro_f1": 0.8694690248154023,
+      "name": "baseline_natural"
+    },
+    "b": {
+      "accuracy": 0.8902714932126696,
+      "accuracy_95ci": [
+        0.868,
+        0.9092
+      ],
+      "macro_f1": 0.8905611520905466,
+      "name": "xlmr_mixed"
+    }
+  },
+  "rows": 884,
+  "split": "test"
+}

@@ -1,0 +1,90 @@
+{
+  "dataset": {
+    "file": "test.csv",
+    "rows": 884,
+    "split": "test",
+    "tag": "external"
+  },
+  "metrics": {
+    "accuracy": 0.8687782805429864,
+    "confusion_matrix": [
+      [
+        256,
+        9,
+        35
+      ],
+      [
+        21,
+        250,
+        13
+      ],
+      [
+        23,
+        15,
+        262
+      ]
+    ],
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "macro_f1": 0.8694690248154023,
+    "macro_precision": 0.870301127593334,
+    "macro_recall": 0.8689827856025039,
+    "num_examples": 884,
+    "per_label": {
+      "negative": {
+        "f1": 0.8533333333333334,
+        "precision": 0.8533333333333334,
+        "recall": 0.8533333333333334,
+        "support": 300
+      },
+      "neutral": {
+        "f1": 0.8960573476702509,
+        "precision": 0.9124087591240876,
+        "recall": 0.8802816901408451,
+        "support": 284
+      },
+      "positive": {
+        "f1": 0.8590163934426229,
+        "precision": 0.8451612903225807,
+        "recall": 0.8733333333333333,
+        "support": 300
+      }
+    }
+  },
+  "model": "baseline_natural",
+  "top_confusions": [
+    {
+      "count": 35,
+      "predicted": "positive",
+      "true": "negative"
+    },
+    {
+      "count": 23,
+      "predicted": "negative",
+      "true": "positive"
+    },
+    {
+      "count": 21,
+      "predicted": "negative",
+      "true": "neutral"
+    },
+    {
+      "count": 15,
+      "predicted": "neutral",
+      "true": "positive"
+    },
+    {
+      "count": 13,
+      "predicted": "positive",
+      "true": "neutral"
+    },
+    {
+      "count": 9,
+      "predicted": "neutral",
+      "true": "negative"
+    }
+  ]
+}
