@@ -1,0 +1,1 @@
+"""Prediction interface for trained Sindhi sentiment models."""
