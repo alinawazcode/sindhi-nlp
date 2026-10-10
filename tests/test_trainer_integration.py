@@ -103,3 +103,21 @@ def test_smoke_run_and_external_evaluation(tiny_project):
     report = evaluate_model(smoke_dir, "data/external/processed/validation.csv", "validation",
                             base_config_path=root / "base.yaml", project_root=root)
     assert report["metrics"]["num_examples"] > 0
+
+
+def test_predictor_loads_a_trained_transformers_model(tiny_project):
+    from sindhi_nlp.inference.predictor import SentimentPredictor
+
+    root = tiny_project
+    train_model(root / "xlmr.yaml", root / "base.yaml", root, smoke=True)
+    predictor = SentimentPredictor.from_pretrained(root / "artifacts" / "models" / "tiny_smoke", device="cpu")
+
+    info = predictor.info
+    assert info.backend == "transformers" and info.confidence_type == "probability"
+    assert info.labels == ("negative", "neutral", "positive") and info.max_length == 16
+
+    result = predictor.predict("good happy great")
+    assert result.label in info.labels
+    assert abs(sum(result.probabilities.values()) - 1.0) < 1e-5
+    batch = predictor.predict_batch(["good happy", "bad sad", "table city"], batch_size=2)
+    assert len(batch) == 3 and all(r.label in info.labels for r in batch)

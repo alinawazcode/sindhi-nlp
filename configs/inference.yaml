@@ -1,0 +1,8 @@
+# Settings for SentimentPredictor.from_config(). Paths are relative to the project root.
+model_dir: artifacts/models/xlmr_mixed
+
+device: auto                  # auto | cpu | cuda
+batch_size: 32
+max_length: null              # null = use the token limit saved with the model
+max_chars: 10000              # reject longer inputs before tokenizing
+confidence_threshold: null    # e.g. 0.6: predictions below it get is_confident=false
