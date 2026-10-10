@@ -8,6 +8,7 @@ reserved for the final one-time evaluation.
 from __future__ import annotations
 
 import dataclasses
+import gc
 import inspect
 import platform
 import random
@@ -275,6 +276,17 @@ def _evaluate(trainer: Any, dataset: EncodedDataset, df: pd.DataFrame, labels: l
     return compute_metrics(df[label_col], predicted, labels), predicted
 
 
+def _remove_checkpoints(path: Path) -> None:
+    """Delete intermediate checkpoints. On Windows, files can stay locked for a moment after loading."""
+    for _ in range(3):
+        shutil.rmtree(path, ignore_errors=True)
+        if not path.exists():
+            return
+        gc.collect()
+        time.sleep(0.5)
+    logger.warning("Could not delete %s (files may be in use). It is safe to delete it manually.", path)
+
+
 def format_run_summary(report: Mapping[str, Any]) -> str:
     lines = [
         f"# XLM-RoBERTa run: {report['run_name']}", "",
@@ -405,6 +417,6 @@ def train_model(
     write_csv(errors, reports_dir / f"{run_name}_misclassified_validation.csv")
     (reports_dir / f"{run_name}_summary.md").write_text(format_run_summary(report), encoding="utf-8", newline="\n")
 
-    shutil.rmtree(checkpoints, ignore_errors=True)
+    _remove_checkpoints(checkpoints)
     logger.info("Saved model to %s", model_dir)
     return report

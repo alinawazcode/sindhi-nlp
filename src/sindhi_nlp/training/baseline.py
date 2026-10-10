@@ -188,7 +188,7 @@ def run_baseline(
     config_snapshot = {k: cfg[k] for k in ("tfidf", "svc") if k in cfg}
     report: dict[str, Any] = {
         "model_name": model_name,
-        "data_dir": str(Path(data_dir) if data_dir is not None else paths["processed_dir"]),
+        "data_dir": Path(data_dir if data_dir is not None else paths["processed_dir"]).as_posix(),
         "seed": seed,
         "config": config_snapshot,
         "data": {

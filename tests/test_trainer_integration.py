@@ -4,6 +4,7 @@ Skipped automatically unless torch, transformers, tokenizers and accelerate are
 installed. It needs no internet access: the tokenizer and model are built here.
 """
 import json
+import sys
 
 import pandas as pd
 import pytest
@@ -52,7 +53,7 @@ def tiny_project(tmp_path):
     fast = PreTrainedTokenizerFast(tokenizer_object=tok, unk_token="<unk>", pad_token="<pad>",
                                    bos_token="<s>", eos_token="</s>")
     model_path = tmp_path / "tiny_base"
-    config = XLMRobertaConfig(vocab_size=len(fast), hidden_size=32, num_hidden_layers=1, num_attention_heads=2,
+    config = XLMRobertaConfig(vocab_size=len(fast), num_labels=len(LABELS), hidden_size=32, num_hidden_layers=1, num_attention_heads=2,
                               intermediate_size=64, max_position_embeddings=64, pad_token_id=fast.pad_token_id,
                               bos_token_id=fast.bos_token_id, eos_token_id=fast.eos_token_id)
     XLMRobertaForSequenceClassification(config).save_pretrained(model_path)
@@ -83,7 +84,8 @@ def test_full_pipeline_with_tiny_model(tiny_project):
     for name in ("label_mapping.json", "training_config.json", "metrics.json", "training_log.jsonl", "config.json"):
         assert (model_dir / name).is_file(), name
     assert any(p.name.startswith("model") for p in model_dir.iterdir()), "model weights missing"
-    assert not (model_dir / "checkpoints").exists()
+    if sys.platform != "win32":  # Windows may keep a memory-mapped checkpoint locked; the trainer warns instead
+        assert not (model_dir / "checkpoints").exists()
     assert json.loads((model_dir / "training_config.json").read_text("utf-8"))["seed"] == 42
     assert 0.0 <= report["evaluations"]["natural"]["metrics"]["macro_f1"] <= 1.0
     assert (root / "artifacts" / "metrics" / "tiny_validation.json").is_file()
