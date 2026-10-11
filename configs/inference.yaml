@@ -6,3 +6,8 @@ batch_size: 32
 max_length: null              # null = use the token limit saved with the model
 max_chars: 10000              # reject longer inputs before tokenizing
 confidence_threshold: null    # e.g. 0.6: predictions below it get is_confident=false
+
+# Used only by the HTTP service (sindhi_nlp.api).
+api:
+  max_batch_size: 64          # most texts accepted by POST /predict/batch
+  cors_origins: []            # browser origins allowed to call the API, e.g. ["http://localhost:3000"]

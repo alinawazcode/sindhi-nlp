@@ -227,3 +227,9 @@ def test_lazy_package_exports():
     assert "SentimentPredictor" in dir(sindhi_nlp)
     with pytest.raises(AttributeError):
         sindhi_nlp.DoesNotExist
+
+
+def test_single_prediction_error_has_no_item_prefix(predictor):
+    with pytest.raises(InvalidInputError) as single:
+        predictor.predict("  ")
+    assert "Item" not in str(single.value) and "empty" in str(single.value)
