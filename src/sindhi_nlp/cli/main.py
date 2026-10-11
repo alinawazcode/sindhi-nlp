@@ -7,6 +7,7 @@
 
 Run from the project root with PYTHONPATH=src (or after installing the package).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -162,10 +163,12 @@ COMMANDS = {"predict": cmd_predict, "batch": cmd_batch, "info": cmd_info, "final
 
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding="utf-8")  # Sindhi text must print on any Windows console
-        except (AttributeError, ValueError):
-            pass
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding="utf-8")  # Sindhi text must print on any Windows console
+            except ValueError:
+                pass
     args = build_parser().parse_args(argv)
     setup_logging(args.log_level)
     try:

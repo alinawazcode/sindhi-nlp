@@ -1,4 +1,5 @@
 """Tests for the prediction interface (scikit-learn backend plus a fake transformers backend)."""
+
 import json
 import math
 
@@ -23,9 +24,7 @@ from sindhi_nlp.inference.schemas import (
 )
 
 TRAIN = (
-    [("خراب ڏکيو بڪار", "negative")] * 20
-    + [("شهر ڪتاب ميز", "neutral")] * 20
-    + [("سٺو شاندار خوش", "positive")] * 20
+    [("خراب ڏکيو بڪار", "negative")] * 20 + [("شهر ڪتاب ميز", "neutral")] * 20 + [("سٺو شاندار خوش", "positive")] * 20
 )
 
 
@@ -47,6 +46,7 @@ def predictor(model_dir):
 
 
 # ------------------------------------------------------------------ predictions
+
 
 def test_predict_returns_a_valid_result(predictor):
     result = predictor.predict("سٺو شاندار خوش")
@@ -90,6 +90,7 @@ def test_empty_batch_and_string_misuse(predictor):
 
 # ------------------------------------------------------------------ bad input
 
+
 @pytest.mark.parametrize("bad", ["", "   ", "\u200b\u200f", None, 5, ["a"], b"bytes"])
 def test_invalid_input_raises(predictor, bad):
     with pytest.raises(InvalidInputError):
@@ -115,6 +116,7 @@ def test_batch_errors_none_keeps_good_items(predictor):
 
 # ------------------------------------------------------------- preprocessing
 
+
 def test_text_is_cleaned_like_in_training(predictor):
     messy = "  سٺو\u200b   شاندار\u0640  "
     assert predictor.predict(messy).probabilities == predictor.predict("سٺو شاندار").probabilities
@@ -138,6 +140,7 @@ def test_invalid_preprocessing_json_is_reported(model_dir):
 
 # ---------------------------------------------------------------- model files
 
+
 def test_missing_model_folder(tmp_path):
     with pytest.raises(ModelNotFoundError, match="not found"):
         SentimentPredictor.from_pretrained(tmp_path / "nope")
@@ -159,6 +162,7 @@ def test_corrupt_model_file(tmp_path):
 
 # ------------------------------------------------------------------ metadata
 
+
 def test_info_describes_the_model(predictor, model_dir):
     info = predictor.info
     assert isinstance(info, ModelInfo)
@@ -179,13 +183,15 @@ def test_confidence_threshold_flags_uncertain_predictions(model_dir):
 
 def test_from_config(model_dir, tmp_path):
     config = tmp_path / "inference.yaml"
-    config.write_text(yaml.safe_dump({"model_dir": "models/toy", "batch_size": 4, "confidence_threshold": 0.4}),
-                      encoding="utf-8")
+    config.write_text(
+        yaml.safe_dump({"model_dir": "models/toy", "batch_size": 4, "confidence_threshold": 0.4}), encoding="utf-8"
+    )
     predictor = SentimentPredictor.from_config(config, project_root=tmp_path)
     assert predictor.predict("سٺو شاندار").label == "positive"
 
 
 # --------------------------------------------- the transformers path, with a fake model
+
 
 def _fake_transformers_predictor(logits_by_text):
     labels = ["negative", "neutral", "positive"]
@@ -220,6 +226,7 @@ def test_softmax_is_stable_and_normalized():
 
 
 # ------------------------------------------------------------- package exports
+
 
 def test_lazy_package_exports():
     assert sindhi_nlp.SentimentPredictor is SentimentPredictor

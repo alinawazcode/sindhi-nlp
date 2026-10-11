@@ -1,4 +1,5 @@
 """Read and validate YAML configuration files."""
+
 from __future__ import annotations
 
 import copy

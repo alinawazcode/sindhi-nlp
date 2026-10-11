@@ -1,4 +1,5 @@
 """Read CSV files and verify the expected columns."""
+
 from __future__ import annotations
 
 import hashlib
@@ -53,8 +54,9 @@ def standardize_columns(
     source: str = "data",
 ) -> pd.DataFrame:
     """Rename accepted header variants to the canonical column names."""
-    text_found = _find_column(df.columns, [text_col, *extra_text_columns])
-    label_found = _find_column(df.columns, [label_col, *extra_label_columns])
+    columns = [str(c) for c in df.columns]
+    text_found = _find_column(columns, [text_col, *extra_text_columns])
+    label_found = _find_column(columns, [label_col, *extra_label_columns])
     if text_found is None or label_found is None:
         verify_columns(df, [text_col, label_col], source)
     return df.rename(columns={text_found: text_col, label_found: label_col})[[text_col, label_col]]

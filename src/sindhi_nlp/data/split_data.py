@@ -4,6 +4,7 @@ Run from the project root (one command rebuilds every processed file):
 
     PYTHONPATH=src python -m sindhi_nlp.data.split_data --config configs/base.yaml
 """
+
 from __future__ import annotations
 
 import argparse
@@ -75,12 +76,8 @@ def stratified_split(
     if min(n_val, n_test) < n_classes:
         raise ValueError("validation/test splits must have at least one row per class")
 
-    rest, test = train_test_split(
-        df, test_size=n_test, stratify=df[label_col], random_state=seed, shuffle=True
-    )
-    train, val = train_test_split(
-        rest, test_size=n_val, stratify=rest[label_col], random_state=seed, shuffle=True
-    )
+    rest, test = train_test_split(df, test_size=n_test, stratify=df[label_col], random_state=seed, shuffle=True)
+    train, val = train_test_split(rest, test_size=n_val, stratify=rest[label_col], random_state=seed, shuffle=True)
     return {
         "train": train.reset_index(drop=True),
         "validation": val.reset_index(drop=True),
@@ -315,7 +312,11 @@ def run_pipeline(config_path: str | Path, project_root: str | Path = ".") -> dic
             for name, frame in splits.items()
         },
         "cross_split_text_overlap": overlap,
-        "grouping": {"enabled": grouping_enabled, "config": dict(grouping_cfg) if grouping_enabled else None, **(group_info or {})},
+        "grouping": {
+            "enabled": grouping_enabled,
+            "config": dict(grouping_cfg) if grouping_enabled else None,
+            **(group_info or {}),
+        },
         "cross_split_group_overlap": group_overlap_counts,
         "outputs_sha256": output_hashes,
         "environment": {

@@ -13,9 +13,7 @@ from sindhi_nlp.cli.main import main
 from sindhi_nlp.inference.predictor import SentimentPredictor
 
 TRAIN = (
-    [("خراب ڏکيو بڪار", "negative")] * 20
-    + [("شهر ڪتاب ميز", "neutral")] * 20
-    + [("سٺو شاندار خوش", "positive")] * 20
+    [("خراب ڏکيو بڪار", "negative")] * 20 + [("شهر ڪتاب ميز", "neutral")] * 20 + [("سٺو شاندار خوش", "positive")] * 20
 )
 
 
@@ -29,7 +27,8 @@ def project(tmp_path):
     joblib.dump(pipeline, model_dir / "model.joblib")
     (tmp_path / "configs").mkdir()
     (tmp_path / "configs" / "inference.yaml").write_text(
-        yaml.safe_dump({"model_dir": "artifacts/models/toy", "device": "cpu"}), encoding="utf-8")
+        yaml.safe_dump({"model_dir": "artifacts/models/toy", "device": "cpu"}), encoding="utf-8"
+    )
     (tmp_path / "configs" / "base.yaml").write_text(yaml.safe_dump(base_config()), encoding="utf-8")
     return tmp_path
 
@@ -64,7 +63,8 @@ def test_info(project, capsys):
 
 def test_batch_csv_with_a_bad_row(project, capsys):
     pd.DataFrame({"Text": ["سٺو شاندار", "", "خراب ڏکيو"], "id": ["1", "2", "3"]}).to_csv(
-        project / "in.csv", index=False, encoding="utf-8")
+        project / "in.csv", index=False, encoding="utf-8"
+    )
     assert run(project, "batch", "--input", "in.csv", "--output", "out/results.csv") == 0
     out = pd.read_csv(project / "out" / "results.csv", dtype=str, keep_default_na=False, encoding="utf-8-sig")
     assert list(out["predicted_label"]) == ["positive", "", "negative"]
@@ -95,7 +95,10 @@ def test_errors_are_reported_not_raised(project, capsys):
 
 def test_finalize_model_writes_preprocessing_json(project, capsys):
     model_dir = project / "artifacts" / "models" / "toy"
-    assert main(["finalize-model", "--model-dir", str(model_dir), "--base-config", str(project / "configs" / "base.yaml")]) == 0
+    assert (
+        main(["finalize-model", "--model-dir", str(model_dir), "--base-config", str(project / "configs" / "base.yaml")])
+        == 0
+    )
     saved = json.loads((model_dir / "preprocessing.json").read_text("utf-8"))
     assert saved["cleaning"]["unicode_form"] == "NFKC" and saved["cleaning"]["remove_tatweel"] is True
     assert SentimentPredictor.from_pretrained(model_dir).info.preprocessing_source == "preprocessing.json"

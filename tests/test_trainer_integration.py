@@ -3,6 +3,7 @@
 Skipped automatically unless torch, transformers, tokenizers and accelerate are
 installed. It needs no internet access: the tokenizer and model are built here.
 """
+
 import json
 import sys
 
@@ -50,26 +51,47 @@ def tiny_project(tmp_path):
     tok = Tokenizer(models.WordLevel(unk_token="<unk>"))
     tok.pre_tokenizer = pre_tokenizers.WhitespaceSplit()
     tok.train_from_iterator(corpus, trainers.WordLevelTrainer(special_tokens=["<pad>", "<unk>", "<s>", "</s>"]))
-    fast = PreTrainedTokenizerFast(tokenizer_object=tok, unk_token="<unk>", pad_token="<pad>",
-                                   bos_token="<s>", eos_token="</s>")
+    fast = PreTrainedTokenizerFast(
+        tokenizer_object=tok, unk_token="<unk>", pad_token="<pad>", bos_token="<s>", eos_token="</s>"
+    )
     model_path = tmp_path / "tiny_base"
-    config = XLMRobertaConfig(vocab_size=len(fast), num_labels=len(LABELS), hidden_size=32, num_hidden_layers=1, num_attention_heads=2,
-                              intermediate_size=64, max_position_embeddings=64, pad_token_id=fast.pad_token_id,
-                              bos_token_id=fast.bos_token_id, eos_token_id=fast.eos_token_id)
+    config = XLMRobertaConfig(
+        vocab_size=len(fast),
+        num_labels=len(LABELS),
+        hidden_size=32,
+        num_hidden_layers=1,
+        num_attention_heads=2,
+        intermediate_size=64,
+        max_position_embeddings=64,
+        pad_token_id=fast.pad_token_id,
+        bos_token_id=fast.bos_token_id,
+        eos_token_id=fast.eos_token_id,
+    )
     XLMRobertaForSequenceClassification(config).save_pretrained(model_path)
     fast.save_pretrained(model_path)
 
     base = base_config()
-    base["paths"].update({"models_dir": "artifacts/models", "metrics_dir": "artifacts/metrics",
-                          "model_reports_dir": "artifacts/reports"})
+    base["paths"].update(
+        {"models_dir": "artifacts/models", "metrics_dir": "artifacts/metrics", "model_reports_dir": "artifacts/reports"}
+    )
     (tmp_path / "base.yaml").write_text(yaml.safe_dump(base), encoding="utf-8")
     cfg = {
-        "model_name": str(model_path), "run_name": "tiny",
+        "model_name": str(model_path),
+        "run_name": "tiny",
         "datasets": {"synthetic": "data/processed", "natural": "data/external/processed"},
-        "train_on": ["synthetic"], "validate_on": ["natural"], "report_on": [],
+        "train_on": ["synthetic"],
+        "validate_on": ["natural"],
+        "report_on": [],
         "tokenizer": {"max_length": 16},
-        "training": {"learning_rate": 1.0e-3, "per_device_train_batch_size": 16, "per_device_eval_batch_size": 32,
-                     "num_train_epochs": 2, "warmup_ratio": 0.1, "early_stopping_patience": 0, "fp16": False},
+        "training": {
+            "learning_rate": 1.0e-3,
+            "per_device_train_batch_size": 16,
+            "per_device_eval_batch_size": 32,
+            "num_train_epochs": 2,
+            "warmup_ratio": 0.1,
+            "early_stopping_patience": 0,
+            "fp16": False,
+        },
         "smoke": {"train_rows": 90, "validation_rows": 30, "epochs": 1, "batch_size": 16},
     }
     (tmp_path / "xlmr.yaml").write_text(yaml.safe_dump(cfg), encoding="utf-8")
@@ -102,8 +124,13 @@ def test_smoke_run_and_external_evaluation(tiny_project):
     train_model(root / "xlmr.yaml", root / "base.yaml", root, smoke=True)
     smoke_dir = root / "artifacts" / "models" / "tiny_smoke"
     assert smoke_dir.is_dir()
-    report = evaluate_model(smoke_dir, "data/external/processed/validation.csv", "validation",
-                            base_config_path=root / "base.yaml", project_root=root)
+    report = evaluate_model(
+        smoke_dir,
+        "data/external/processed/validation.csv",
+        "validation",
+        base_config_path=root / "base.yaml",
+        project_root=root,
+    )
     assert report["metrics"]["num_examples"] > 0
 
 

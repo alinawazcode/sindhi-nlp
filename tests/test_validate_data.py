@@ -105,8 +105,9 @@ def test_verify_columns_and_processed_split(tmp_path):
 
 
 def test_config_validation(tmp_path):
-    from conftest import base_config
     import yaml
+
+    from conftest import base_config
 
     good = tmp_path / "good.yaml"
     good.write_text(yaml.safe_dump(base_config()), encoding="utf-8")

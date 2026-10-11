@@ -7,6 +7,7 @@ only at sentences where exactly one model is wrong.
     PYTHONPATH=src python -m sindhi_nlp.evaluation.compare_models \
         --a baseline_natural --b xlmr_mixed --split test
 """
+
 from __future__ import annotations
 
 import argparse
@@ -59,14 +60,21 @@ def load_run(model: str, tag: str, split: str, metrics_dir: Path, reports_dir: P
     if not errors[text_col].is_unique:
         raise ValueError(f"{errors_path.name} has repeated texts; cannot match errors between models")
     return {
-        "model": model, "n": n, "accuracy": float(metrics["accuracy"]), "macro_f1": float(metrics["macro_f1"]),
+        "model": model,
+        "n": n,
+        "accuracy": float(metrics["accuracy"]),
+        "macro_f1": float(metrics["macro_f1"]),
         "errors": set(errors[text_col]),
     }
 
 
 def compare_models(
-    model_a: str, model_b: str, split: str = "test", tag: str = "external",
-    base_config_path: str | Path = "configs/base.yaml", project_root: str | Path = ".",
+    model_a: str,
+    model_b: str,
+    split: str = "test",
+    tag: str = "external",
+    base_config_path: str | Path = "configs/base.yaml",
+    project_root: str | Path = ".",
 ) -> dict[str, Any]:
     root = Path(project_root).resolve()
     base = load_base_config(base_config_path)
@@ -79,11 +87,13 @@ def compare_models(
     if a["n"] != b["n"]:
         raise ValueError(f"The models were scored on different numbers of rows: {a['n']} vs {b['n']}")
 
-    only_a_wrong = len(a["errors"] - b["errors"])   # B is right, A is wrong
-    only_b_wrong = len(b["errors"] - a["errors"])   # A is right, B is wrong
+    only_a_wrong = len(a["errors"] - b["errors"])  # B is right, A is wrong
+    only_b_wrong = len(b["errors"] - a["errors"])  # A is right, B is wrong
     both_wrong = len(a["errors"] & b["errors"])
     result: dict[str, Any] = {
-        "split": split, "dataset_tag": tag, "rows": a["n"],
+        "split": split,
+        "dataset_tag": tag,
+        "rows": a["n"],
         "models": {},
         "agreement": {
             "both_wrong": both_wrong,
@@ -97,7 +107,9 @@ def compare_models(
         correct = a["n"] - len(run["errors"])
         low, high = wilson_interval(correct, a["n"])
         result["models"][key] = {
-            "name": run["model"], "accuracy": run["accuracy"], "macro_f1": run["macro_f1"],
+            "name": run["model"],
+            "accuracy": run["accuracy"],
+            "macro_f1": run["macro_f1"],
             "accuracy_95ci": [round(low, 4), round(high, 4)],
         }
     write_json(result, metrics_dir / f"compare_{model_a}_vs_{model_b}_{tag}_{split}.json")
@@ -118,13 +130,19 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{args.a} vs {args.b} on {args.tag}/{args.split} ({r['rows']} rows)")
     for key in ("a", "b"):
         m = r["models"][key]
-        print(f"  {m['name']:<22} macro-F1 {m['macro_f1']:.4f}  accuracy {m['accuracy']:.4f}  95% CI {m['accuracy_95ci']}")
+        print(
+            f"  {m['name']:<22} macro-F1 {m['macro_f1']:.4f}  accuracy {m['accuracy']:.4f}  95% CI {m['accuracy_95ci']}"
+        )
     g = r["agreement"]
-    print(f"  both right {g['both_right']}, both wrong {g['both_wrong']}, "
-          f"only {args.a} wrong {g['only_a_wrong']}, only {args.b} wrong {g['only_b_wrong']}")
+    print(
+        f"  both right {g['both_right']}, both wrong {g['both_wrong']}, "
+        f"only {args.a} wrong {g['only_a_wrong']}, only {args.b} wrong {g['only_b_wrong']}"
+    )
     p = r["mcnemar_exact_p_value"]
-    print(f"  McNemar exact p-value: {p:.4f} -> " + ("difference is unlikely to be chance" if p < 0.05
-          else "difference could plausibly be chance"))
+    print(
+        f"  McNemar exact p-value: {p:.4f} -> "
+        + ("difference is unlikely to be chance" if p < 0.05 else "difference could plausibly be chance")
+    )
     return 0
 
 

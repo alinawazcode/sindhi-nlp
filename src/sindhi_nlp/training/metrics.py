@@ -1,13 +1,14 @@
 """Accuracy, precision, recall, macro-F1, and per-label metrics."""
+
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from typing import Any, Callable, Iterable, Sequence
 
 import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
 
 
-def compute_metrics(y_true: Sequence[Any], y_pred: Sequence[Any], labels: Sequence[Any]) -> dict[str, Any]:
+def compute_metrics(y_true: Iterable[Any], y_pred: Iterable[Any], labels: Sequence[Any]) -> dict[str, Any]:
     """Classification metrics over a fixed label order.
 
     ``confusion_matrix`` rows are true labels and columns are predictions,
@@ -20,9 +21,7 @@ def compute_metrics(y_true: Sequence[Any], y_pred: Sequence[Any], labels: Sequen
     if not y_true:
         raise ValueError("Cannot compute metrics on zero examples")
 
-    precision, recall, f1, support = precision_recall_fscore_support(
-        y_true, y_pred, labels=labels, zero_division=0
-    )
+    precision, recall, f1, support = precision_recall_fscore_support(y_true, y_pred, labels=labels, zero_division=0)
     matrix = confusion_matrix(y_true, y_pred, labels=labels)
     return {
         "num_examples": len(y_true),

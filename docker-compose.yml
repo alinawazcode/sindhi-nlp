@@ -1,0 +1,15 @@
+# Start the API:   docker compose up --build
+# Then open:       http://127.0.0.1:8000/docs
+services:
+  api:
+    build: .
+    image: sindhi-nlp-api:0.1.0
+    ports:
+      - "8000:8000"
+    environment:
+      SINDHI_NLP_ROOT: /app
+    volumes:
+      # The model folder named in configs/inference.yaml (model_dir) must exist here.
+      - ./artifacts/models:/app/artifacts/models:ro
+      - ./configs/inference.yaml:/app/configs/inference.yaml:ro
+    restart: unless-stopped

@@ -1,4 +1,5 @@
 """Make the local ``src/`` package importable until packaging is configured (Phase 8)."""
+
 import sys
 from pathlib import Path
 
@@ -83,12 +84,7 @@ DAY_GROUPING = {"enabled": True, "normalizers": [{"pattern": "|".join(DAYS), "re
 
 def templated_frame(frames_per_label: int = 40) -> pd.DataFrame:
     """Each frame appears once per weekday, so every group has 7 near-identical rows."""
-    rows = [
-        (f"{label} frame {f} on {day}", label)
-        for label in LABELS
-        for f in range(frames_per_label)
-        for day in DAYS
-    ]
+    rows = [(f"{label} frame {f} on {day}", label) for label in LABELS for f in range(frames_per_label) for day in DAYS]
     return pd.DataFrame(rows, columns=["Text", "Label"])
 
 

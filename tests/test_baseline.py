@@ -75,7 +75,9 @@ def test_artifacts_saved_together(project):
         assert (model_dir / name).is_file(), name
     assert json.loads((model_dir / "config.json").read_text("utf-8"))["seed"] == 42
     assert json.loads((model_dir / "label_mapping.json").read_text("utf-8")) == {
-        "negative": 0, "neutral": 1, "positive": 2,
+        "negative": 0,
+        "neutral": 1,
+        "positive": 2,
     }
     assert (root / "artifacts" / "metrics" / "baseline_test_validation.json").is_file()
     assert (root / "artifacts" / "reports" / "baseline_test_summary.md").is_file()

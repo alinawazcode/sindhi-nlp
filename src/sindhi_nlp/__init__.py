@@ -10,6 +10,7 @@ Quick start::
 Names are imported lazily, so ``import sindhi_nlp`` stays fast and does not load
 torch or scikit-learn until you actually create a predictor.
 """
+
 from __future__ import annotations
 
 import importlib

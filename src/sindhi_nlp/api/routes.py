@@ -1,5 +1,8 @@
 """HTTP endpoints: health, model info, and prediction."""
+
 from __future__ import annotations
+
+from typing import Any
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
@@ -19,8 +22,8 @@ from .models import (
 
 router = APIRouter()
 
-UNAVAILABLE = {503: {"model": ErrorResponse, "description": "The model is not loaded"}}
-INVALID = {422: {"model": ErrorResponse, "description": "The input is invalid"}}
+UNAVAILABLE: dict[int | str, dict[str, Any]] = {503: {"model": ErrorResponse, "description": "The model is not loaded"}}
+INVALID: dict[int | str, dict[str, Any]] = {422: {"model": ErrorResponse, "description": "The input is invalid"}}
 
 
 def get_service(request: Request) -> ModelService:
@@ -40,10 +43,14 @@ def _item(prediction) -> PredictionItem:
 def health(service: ModelService = Depends(get_service)):
     """Report whether the model is loaded and which one it is."""
     if not service.loaded:
-        body = HealthResponse(status="unavailable", model_loaded=False, package_version=__version__, detail=service.error)
+        body = HealthResponse(
+            status="unavailable", model_loaded=False, package_version=__version__, detail=service.error
+        )
         return JSONResponse(status_code=503, content=body.model_dump())
     info = service.info
-    return HealthResponse(status="ok", model_loaded=True, model=info.name, backend=info.backend, package_version=__version__)
+    return HealthResponse(
+        status="ok", model_loaded=True, model=info.name, backend=info.backend, package_version=__version__
+    )
 
 
 @router.get("/model", response_model=ModelInfoResponse, responses=UNAVAILABLE, tags=["status"])
@@ -59,7 +66,9 @@ def predict(body: PredictRequest, service: ModelService = Depends(get_service)):
     return PredictionResponse(**_item(prediction).model_dump(), model=service.info.name)
 
 
-@router.post("/predict/batch", response_model=BatchPredictionResponse, responses={**INVALID, **UNAVAILABLE}, tags=["prediction"])
+@router.post(
+    "/predict/batch", response_model=BatchPredictionResponse, responses={**INVALID, **UNAVAILABLE}, tags=["prediction"]
+)
 def predict_batch(
     body: BatchPredictRequest,
     service: ModelService = Depends(get_service),

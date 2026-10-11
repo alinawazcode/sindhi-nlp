@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sindhi-nlp"
+dynamic = ["version"]
+description = "Sentiment classification for Sindhi text: training pipeline, Python SDK, command line, and HTTP API."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Ali Nawaz", email = "alinawaz.code@gmail.com" }]
+keywords = ["sindhi", "nlp", "sentiment-analysis", "xlm-roberta", "low-resource-languages"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+]
+# Enough for data preparation, the TF-IDF baseline, the SDK, and the CLI.
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scikit-learn>=1.3",
+    "scipy>=1.10",
+    "joblib>=1.3",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Fine-tuning and running the XLM-RoBERTa model.
+transformers = ["torch>=2.2", "transformers>=4.41", "accelerate>=0.26"]
+# The HTTP service.
+api = ["fastapi>=0.110", "uvicorn>=0.29"]
+# Tests, linting, and type checking.
+dev = [
+    "pytest>=7.4",
+    "httpx>=0.27",
+    "ruff>=0.17,<0.18",
+    "mypy>=2.4,<3",
+    "types-PyYAML",
+    "pandas-stubs",
+]
+
+[project.scripts]
+sindhi-nlp = "sindhi_nlp.cli.main:main"
+
+# [project.urls]
+# Homepage = "https://github.com/<your-account>/sindhi-nlp"
+
+[tool.setuptools.dynamic]
+version = { attr = "sindhi_nlp.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+filterwarnings = [
+    "ignore:'pin_memory' argument is set as true:UserWarning",
+    "ignore:Using .httpx. with",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+# Real problems only: syntax errors, unused or missing names, likely bugs, import order.
+select = ["E4", "E7", "E9", "F", "B", "I"]
+ignore = [
+    "B905",  # zip() without strict=: all zipped sequences here are built to the same length
+    "E741",  # short names such as `l` in tiny comprehensions
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B007", "B018"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sindhi_nlp", "conftest"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src"]
+ignore_missing_imports = true
+warn_redundant_casts = true

@@ -17,10 +17,12 @@ def _write_run(root, model, wrong_ids, truncate_to=None):
     reports.mkdir(parents=True, exist_ok=True)
     accuracy = (N - len(wrong_ids)) / N
     (metrics / f"{model}_external_test.json").write_text(
-        json.dumps({"metrics": {"num_examples": N, "accuracy": accuracy, "macro_f1": accuracy}}), encoding="utf-8")
+        json.dumps({"metrics": {"num_examples": N, "accuracy": accuracy, "macro_f1": accuracy}}), encoding="utf-8"
+    )
     ids = wrong_ids if truncate_to is None else wrong_ids[:truncate_to]
-    pd.DataFrame({"Text": [f"sentence {i}" for i in ids], "true_label": "negative", "predicted_label": "positive"}) \
-        .to_csv(reports / f"{model}_external_test_misclassified.csv", index=False, encoding="utf-8")
+    pd.DataFrame(
+        {"Text": [f"sentence {i}" for i in ids], "true_label": "negative", "predicted_label": "positive"}
+    ).to_csv(reports / f"{model}_external_test_misclassified.csv", index=False, encoding="utf-8")
 
 
 @pytest.fixture
@@ -45,8 +47,8 @@ def test_wilson_interval():
 
 
 def test_compare_counts_agreement_and_pvalue(root):
-    a_wrong = list(range(0, 20))            # model A wrong on 0..19
-    b_wrong = list(range(10, 22))           # model B wrong on 10..21
+    a_wrong = list(range(0, 20))  # model A wrong on 0..19
+    b_wrong = list(range(10, 22))  # model B wrong on 10..21
     _write_run(root, "model_a", a_wrong)
     _write_run(root, "model_b", b_wrong)
     r = compare_models("model_a", "model_b", base_config_path=root / "base.yaml", project_root=root)

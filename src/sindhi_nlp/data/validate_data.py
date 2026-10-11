@@ -1,4 +1,5 @@
 """Checks for missing text, invalid labels, duplicate text, and invalid schema."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -34,9 +35,7 @@ def normalize_label(value: Any, lookup: Mapping[str, str]) -> str | None:
     return lookup.get(value.strip().lower())
 
 
-def normalize_labels(
-    series: pd.Series, labels: Sequence[str], aliases: Mapping[str, str] | None = None
-) -> pd.Series:
+def normalize_labels(series: pd.Series, labels: Sequence[str], aliases: Mapping[str, str] | None = None) -> pd.Series:
     """Map raw label spellings to canonical labels; unknown values become ``None``."""
     lookup = build_label_lookup(labels, aliases)
     return series.map(lambda value: normalize_label(value, lookup)).astype(object)

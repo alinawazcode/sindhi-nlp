@@ -1,4 +1,5 @@
 """Tests for the parts of Phase 4 that do not need torch or transformers."""
+
 import json
 import types
 
@@ -45,8 +46,13 @@ def training_config(**overrides) -> dict:
         "repeat": {},
         "tokenizer": {"max_length": 32},
         "training": {
-            "learning_rate": 2.0e-5, "per_device_train_batch_size": 8, "per_device_eval_batch_size": 16,
-            "num_train_epochs": 3, "warmup_ratio": 0.1, "weight_decay": 0.01, "early_stopping_patience": 2,
+            "learning_rate": 2.0e-5,
+            "per_device_train_batch_size": 8,
+            "per_device_eval_batch_size": 16,
+            "num_train_epochs": 3,
+            "warmup_ratio": 0.1,
+            "weight_decay": 0.01,
+            "early_stopping_patience": 2,
         },
         "smoke": {"train_rows": 60, "validation_rows": 30, "epochs": 1, "batch_size": 4},
     }
@@ -67,8 +73,9 @@ def project(tmp_path):
     syn_train = pd.concat([pd.read_csv(tmp_path / "data/processed/train.csv"), leaked], ignore_index=True)
     syn_train.to_csv(tmp_path / "data/processed/train.csv", index=False, encoding="utf-8")
     base = base_config()
-    base["paths"].update({"models_dir": "artifacts/models", "metrics_dir": "artifacts/metrics",
-                          "model_reports_dir": "artifacts/reports"})
+    base["paths"].update(
+        {"models_dir": "artifacts/models", "metrics_dir": "artifacts/metrics", "model_reports_dir": "artifacts/reports"}
+    )
     return tmp_path, base, leaked["Text"].iloc[0]
 
 
@@ -89,7 +96,10 @@ def test_build_datasets_combines_dedupes_and_protects_validation(project):
     assert set(data.report["synthetic"]["Text"]).isdisjoint(data.train["Text"])
     assert set(data.validation["Label"]) == set(LABELS)
     assert sorted(data.file_hashes) == [
-        "natural/train.csv", "natural/validation.csv", "synthetic/train.csv", "synthetic/validation.csv"
+        "natural/train.csv",
+        "natural/validation.csv",
+        "synthetic/train.csv",
+        "synthetic/validation.csv",
     ]
 
 
@@ -164,11 +174,28 @@ def test_token_length_stats():
     assert stats["truncated_share"] == pytest.approx(0.10)
 
 
-V4_FIELDS = {"output_dir", "evaluation_strategy", "warmup_ratio", "save_strategy", "load_best_model_at_end",
-             "metric_for_best_model", "greater_is_better", "save_total_limit", "logging_steps",
-             "dataloader_num_workers", "fp16", "seed", "data_seed", "report_to", "learning_rate",
-             "per_device_train_batch_size", "per_device_eval_batch_size", "gradient_accumulation_steps",
-             "num_train_epochs", "weight_decay"}
+V4_FIELDS = {
+    "output_dir",
+    "evaluation_strategy",
+    "warmup_ratio",
+    "save_strategy",
+    "load_best_model_at_end",
+    "metric_for_best_model",
+    "greater_is_better",
+    "save_total_limit",
+    "logging_steps",
+    "dataloader_num_workers",
+    "fp16",
+    "seed",
+    "data_seed",
+    "report_to",
+    "learning_rate",
+    "per_device_train_batch_size",
+    "per_device_eval_batch_size",
+    "gradient_accumulation_steps",
+    "num_train_epochs",
+    "weight_decay",
+}
 V5_FIELDS = (V4_FIELDS - {"evaluation_strategy", "warmup_ratio"}) | {"eval_strategy", "warmup_steps"}
 
 

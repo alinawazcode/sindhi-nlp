@@ -7,6 +7,7 @@ Run from the project root:
 The model named in configs/inference.yaml is loaded once at startup. Interactive
 documentation is served at /docs.
 """
+
 from __future__ import annotations
 
 import logging
@@ -107,8 +108,13 @@ def create_app(predictor: SentimentPredictor | None = None, settings: Settings |
     async def _log_requests(request: Request, call_next):
         start = time.perf_counter()
         response = await call_next(request)
-        logger.info("%s %s -> %d (%.0f ms)", request.method, request.url.path, response.status_code,
-                    1000 * (time.perf_counter() - start))
+        logger.info(
+            "%s %s -> %d (%.0f ms)",
+            request.method,
+            request.url.path,
+            response.status_code,
+            1000 * (time.perf_counter() - start),
+        )
         return response
 
     register_error_handlers(app)

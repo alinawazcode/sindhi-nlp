@@ -4,6 +4,7 @@ Run from the project root:
 
     PYTHONPATH=src python -m sindhi_nlp.data.prepare_external
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,8 +40,13 @@ from .validate_data import (
 logger = get_logger(__name__)
 
 REQUIRED_KEYS = (
-    "source_file", "text_column", "label_column",
-    "split.train", "split.validation", "split.test", "output_dir",
+    "source_file",
+    "text_column",
+    "label_column",
+    "split.train",
+    "split.validation",
+    "split.test",
+    "output_dir",
 )
 
 
@@ -65,7 +71,7 @@ def synthetic_overlap(
 
 
 def text_statistics(df: pd.DataFrame, labels: list[str], text_col: str, label_col: str) -> dict[str, Any]:
-    words = df[text_col].str.split().str.len()
+    words = df[text_col].map(lambda text: len(text.split()))
     per_label = {
         label: {
             "mean_words": round(float(words[df[label_col] == label].mean()), 3),
@@ -107,8 +113,11 @@ def run_external_prep(
 
     logger.info("Reading %s", source)
     raw = standardize_columns(
-        read_csv(source), text_col, label_col,
-        extra_text_columns=[ext["text_column"]], extra_label_columns=[ext["label_column"]],
+        read_csv(source),
+        text_col,
+        label_col,
+        extra_text_columns=[ext["text_column"]],
+        extra_label_columns=[ext["label_column"]],
         source=source.name,
     )
     df = raw.copy()
@@ -128,13 +137,12 @@ def run_external_prep(
         raise DataValidationError(f"Splits share near-duplicate groups: {group_counts}")
     text_counts = text_overlap(splits, text_col)
 
-    contamination = synthetic_overlap(
-        splits, [root / p for p in ext.get("compare_with", [])], text_col
-    )
+    contamination = synthetic_overlap(splits, [root / p for p in ext.get("compare_with", [])], text_col)
     if contamination and contamination["total_rows"]:
         logger.warning(
             "%d natural rows (%.1f%%) also appear in the synthetic data",
-            contamination["total_rows"], 100 * contamination["share_of_natural_rows"],
+            contamination["total_rows"],
+            100 * contamination["share_of_natural_rows"],
         )
 
     hashes: dict[str, str] = {}
@@ -192,11 +200,15 @@ def main(argv: list[str] | None = None) -> int:
         info = report["splits"][name]
         print(f"  {name:<10} {info['rows']:>6,}  {info['labels']}")
     stats = report["text_statistics"]
-    print(f"Words per text (min/mean/max): {stats['words_per_text']['min']}/{stats['words_per_text']['mean']}/{stats['words_per_text']['max']}"
-          f"   vocabulary: {stats['vocabulary_size']:,}")
+    print(
+        f"Words per text (min/mean/max): {stats['words_per_text']['min']}/{stats['words_per_text']['mean']}/{stats['words_per_text']['max']}"
+        f"   vocabulary: {stats['vocabulary_size']:,}"
+    )
     overlap = report["synthetic_overlap"]
     if overlap is not None:
-        print(f"Rows also found in synthetic train/validation: {overlap['total_rows']:,} ({100 * overlap['share_of_natural_rows']:.2f}%)")
+        print(
+            f"Rows also found in synthetic train/validation: {overlap['total_rows']:,} ({100 * overlap['share_of_natural_rows']:.2f}%)"
+        )
     return 0
 
 

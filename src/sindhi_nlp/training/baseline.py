@@ -7,6 +7,7 @@ Run from the project root:
 
     PYTHONPATH=src python -m sindhi_nlp.training.baseline
 """
+
 from __future__ import annotations
 
 import argparse
@@ -49,11 +50,11 @@ def build_pipeline(baseline_cfg: dict[str, Any], seed: int) -> Pipeline:
     )
 
 
-def top_features(pipeline: Pipeline, top_n: int) -> dict[str, list[dict[str, float]]]:
+def top_features(pipeline: Pipeline, top_n: int) -> dict[str, list[dict[str, Any]]]:
     """Highest-weighted terms per class, useful for spotting label artifacts."""
     vectorizer, svc = pipeline.named_steps["tfidf"], pipeline.named_steps["svc"]
     names = vectorizer.get_feature_names_out()
-    result: dict[str, list[dict[str, float]]] = {}
+    result: dict[str, list[dict[str, Any]]] = {}
     for row, label in zip(svc.coef_, svc.classes_):
         best = np.argsort(row)[::-1][:top_n]
         result[str(label)] = [{"term": str(names[i]), "weight": round(float(row[i]), 4)} for i in best]
@@ -61,8 +62,12 @@ def top_features(pipeline: Pipeline, top_n: int) -> dict[str, list[dict[str, flo
 
 
 def error_analysis(
-    pipeline: Pipeline, df: pd.DataFrame, predictions: np.ndarray, max_examples: int,
-    text_col: str, label_col: str,
+    pipeline: Pipeline,
+    df: pd.DataFrame,
+    predictions: np.ndarray,
+    max_examples: int,
+    text_col: str,
+    label_col: str,
 ) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
     """Most confident mistakes and the most frequent (true -> predicted) confusions."""
     svc = pipeline.named_steps["svc"]
@@ -89,8 +94,7 @@ def error_analysis(
         errors.groupby(["true_label", "predicted_label"]).size().sort_values(ascending=False).reset_index(name="count")
     )
     confusions = [
-        {"true": r.true_label, "predicted": r.predicted_label, "count": int(r["count"])}
-        for _, r in pairs.iterrows()
+        {"true": r.true_label, "predicted": r.predicted_label, "count": int(r["count"])} for _, r in pairs.iterrows()
     ]
     return errors.head(max_examples).reset_index(drop=True), confusions
 
@@ -117,7 +121,13 @@ def format_summary(report: dict[str, Any]) -> str:
         s = m["per_label"][label]
         lines.append(f"| {label} | {s['precision']:.4f} | {s['recall']:.4f} | {s['f1']:.4f} | {s['support']:,} |")
 
-    lines += ["", "## Confusion matrix (rows = true, columns = predicted)", "", "| true \\ predicted | " + " | ".join(labels) + " |", "| --- |" + " ---: |" * len(labels)]
+    lines += [
+        "",
+        "## Confusion matrix (rows = true, columns = predicted)",
+        "",
+        "| true \\ predicted | " + " | ".join(labels) + " |",
+        "| --- |" + " ---: |" * len(labels),
+    ]
     for label, row in zip(labels, m["confusion_matrix"]):
         lines.append(f"| {label} | " + " | ".join(f"{v:,}" for v in row) + " |")
 
@@ -129,7 +139,16 @@ def format_summary(report: dict[str, Any]) -> str:
     for label, terms in report["top_features"].items():
         lines.append(f"- **{label}**: " + ", ".join(t["term"] for t in terms))
 
-    lines += ["", "## Setup", "", f"- Seed: {report['seed']}", f"- TF-IDF: `{json.dumps(report['config']['tfidf'], ensure_ascii=False)}`", f"- LinearSVC: `{json.dumps(report['config']['svc'])}`", f"- Train rows: {report['data']['train_rows']:,}, validation rows: {report['data']['validation_rows']:,}", ""]
+    lines += [
+        "",
+        "## Setup",
+        "",
+        f"- Seed: {report['seed']}",
+        f"- TF-IDF: `{json.dumps(report['config']['tfidf'], ensure_ascii=False)}`",
+        f"- LinearSVC: `{json.dumps(report['config']['svc'])}`",
+        f"- Train rows: {report['data']['train_rows']:,}, validation rows: {report['data']['validation_rows']:,}",
+        "",
+    ]
     return "\n".join(lines)
 
 
@@ -231,7 +250,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", default="configs/base.yaml")
     parser.add_argument("--baseline-config", default="configs/baseline.yaml")
     parser.add_argument("--project-root", default=".")
-    parser.add_argument("--data-dir", default=None, help="Folder with train.csv and validation.csv (default: synthetic)")
+    parser.add_argument(
+        "--data-dir", default=None, help="Folder with train.csv and validation.csv (default: synthetic)"
+    )
     parser.add_argument("--model-name", default=None, help="Output name, e.g. baseline_natural")
     parser.add_argument("--log-level", default="INFO")
     args = parser.parse_args(argv)

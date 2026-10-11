@@ -3,12 +3,13 @@
 The same function must be used in training and at inference time, so it is
 deterministic, idempotent, and free of I/O.
 """
+
 from __future__ import annotations
 
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from typing import Any, Literal, Mapping, cast
 
 import pandas as pd
 
@@ -83,12 +84,12 @@ def clean_text(text: Any, options: CleaningOptions = DEFAULT_OPTIONS) -> str:
     if not isinstance(text, str):
         return ""
     if options.unicode_form:
-        text = unicodedata.normalize(options.unicode_form, text)
+        text = unicodedata.normalize(cast("Literal['NFC', 'NFD', 'NFKC', 'NFKD']", options.unicode_form), text)
     if options._table:
         text = text.translate(options._table)
         # Removing characters can expose new compositions, so normalize again.
         if options.unicode_form:
-            text = unicodedata.normalize(options.unicode_form, text)
+            text = unicodedata.normalize(cast("Literal['NFC', 'NFD', 'NFKC', 'NFKD']", options.unicode_form), text)
     if options.strip_diacritics:
         text = _DIACRITICS_RE.sub("", text)
     text = _CONTROL_RE.sub("", text)

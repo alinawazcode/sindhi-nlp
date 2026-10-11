@@ -7,6 +7,7 @@ same model unless you pass ``--overwrite``.
     PYTHONPATH=src python -m sindhi_nlp.evaluation.evaluate_external \
         --model-dir artifacts/models/baseline_tfidf_linearsvc --split validation
 """
+
 from __future__ import annotations
 
 import argparse
@@ -46,8 +47,13 @@ def hf_predict(model_dir: Path, texts: list[str], max_length: int = 128, batch_s
     predictions: list[str] = []
     with torch.no_grad():
         for start in range(0, len(texts), batch_size):
-            batch = tokenizer(texts[start:start + batch_size], truncation=True, max_length=max_length,
-                              padding=True, return_tensors="pt").to(device)
+            batch = tokenizer(
+                texts[start : start + batch_size],
+                truncation=True,
+                max_length=max_length,
+                padding=True,
+                return_tensors="pt",
+            ).to(device)
             predictions.extend(id2label[i] for i in model(**batch).logits.argmax(dim=-1).tolist())
     return np.array(predictions, dtype=object)
 
@@ -117,11 +123,13 @@ def evaluate_model(
         errors, confusions = error_analysis(model, df, predictions, max_error_examples, text_col, label_col)
     else:
         wrong = df[label_col].to_numpy() != predictions
-        errors = pd.DataFrame({
-            text_col: df[text_col].to_numpy()[wrong],
-            "true_label": df[label_col].to_numpy()[wrong],
-            "predicted_label": predictions[wrong],
-        }).head(max_error_examples)
+        errors = pd.DataFrame(
+            {
+                text_col: df[text_col].to_numpy()[wrong],
+                "true_label": df[label_col].to_numpy()[wrong],
+                "predicted_label": predictions[wrong],
+            }
+        ).head(max_error_examples)
         confusions = []
 
     report = {

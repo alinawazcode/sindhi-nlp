@@ -1,4 +1,5 @@
 """Settings, and construction and caching of the predictor used by the routes."""
+
 from __future__ import annotations
 
 import os

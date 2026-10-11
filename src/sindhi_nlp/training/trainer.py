@@ -5,6 +5,7 @@ use it, so the data-handling parts can be tested without those packages.
 Only ``train.csv`` and ``validation.csv`` are ever read here; ``test.csv`` is
 reserved for the final one-time evaluation.
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -34,13 +35,21 @@ logger = get_logger(__name__)
 
 ALLOWED_SPLITS = ("train", "validation")
 REQUIRED_KEYS = (
-    "model_name", "run_name", "datasets", "train_on", "validate_on", "tokenizer.max_length",
-    "training.learning_rate", "training.num_train_epochs",
-    "training.per_device_train_batch_size", "training.per_device_eval_batch_size",
+    "model_name",
+    "run_name",
+    "datasets",
+    "train_on",
+    "validate_on",
+    "tokenizer.max_length",
+    "training.learning_rate",
+    "training.num_train_epochs",
+    "training.per_device_train_batch_size",
+    "training.per_device_eval_batch_size",
 )
 
 
 # ----------------------------------------------------------------------------- config
+
 
 def validate_training_config(cfg: Mapping[str, Any]) -> None:
     datasets = cfg["datasets"]
@@ -73,6 +82,7 @@ def load_training_config(path: str | Path) -> dict[str, Any]:
 
 # ----------------------------------------------------------------------------- data
 
+
 @dataclass
 class DataBundle:
     train: pd.DataFrame
@@ -83,8 +93,14 @@ class DataBundle:
 
 
 def load_split(
-    cfg: Mapping[str, Any], root: Path, source: str, split: str,
-    labels: Sequence[str], text_col: str, label_col: str, hashes: dict[str, str] | None = None,
+    cfg: Mapping[str, Any],
+    root: Path,
+    source: str,
+    split: str,
+    labels: Sequence[str],
+    text_col: str,
+    label_col: str,
+    hashes: dict[str, str] | None = None,
 ) -> pd.DataFrame:
     if split not in ALLOWED_SPLITS:
         raise ValueError(f"Training only reads {ALLOWED_SPLITS}; the test split is reserved for the final evaluation")
@@ -146,7 +162,11 @@ def build_datasets(
 
     repeats = cfg.get("repeat") or {}
     train = pd.concat(
-        [part for source, group in train.groupby("_source", sort=False) for part in [group] * int(repeats.get(source, 1))],
+        [
+            part
+            for source, group in train.groupby("_source", sort=False)
+            for part in [group] * int(repeats.get(source, 1))
+        ],
         ignore_index=True,
     )
     train = train.drop(columns="_source").sample(frac=1.0, random_state=seed).reset_index(drop=True)
@@ -154,7 +174,10 @@ def build_datasets(
     if smoke:
         train = stratified_sample(train, int(smoke_cfg.get("train_rows", 240)), seed, label_col)
         validation = stratified_sample(validation, int(smoke_cfg.get("validation_rows", 90)), seed, label_col)
-        report = {k: stratified_sample(v, int(smoke_cfg.get("validation_rows", 90)), seed, label_col) for k, v in report.items()}
+        report = {
+            k: stratified_sample(v, int(smoke_cfg.get("validation_rows", 90)), seed, label_col)
+            for k, v in report.items()
+        }
 
     info = {
         "smoke": smoke,
@@ -193,8 +216,12 @@ class EncodedDataset(_DatasetBase):
 
 
 def encode_dataframe(
-    tokenizer: Callable[..., Any], df: pd.DataFrame, label_to_id: Mapping[str, int],
-    max_length: int, text_col: str, label_col: str,
+    tokenizer: Callable[..., Any],
+    df: pd.DataFrame,
+    label_to_id: Mapping[str, int],
+    max_length: int,
+    text_col: str,
+    label_col: str,
 ) -> EncodedDataset:
     """Tokenize without padding (a collator pads each batch dynamically)."""
     encodings = tokenizer(df[text_col].tolist(), truncation=True, max_length=max_length)
@@ -211,15 +238,25 @@ def token_length_stats(
     n = len(lengths)
     pct = lambda p: int(lengths[min(n - 1, int(p / 100 * n))])  # noqa: E731
     return {
-        "sampled": n, "p50": pct(50), "p95": pct(95), "p99": pct(99), "max": int(lengths[-1]),
+        "sampled": n,
+        "p50": pct(50),
+        "p95": pct(95),
+        "p99": pct(99),
+        "max": int(lengths[-1]),
         "truncated_share": round(sum(l > max_length for l in lengths) / n, 6),
     }
 
 
 # ----------------------------------------------------------------------------- Trainer setup
 
+
 def build_training_kwargs(
-    cfg: Mapping[str, Any], seed: int, output_dir: str, field_names: set[str], use_fp16: bool, smoke: bool = False,
+    cfg: Mapping[str, Any],
+    seed: int,
+    output_dir: str,
+    field_names: set[str],
+    use_fp16: bool,
+    smoke: bool = False,
 ) -> dict[str, Any]:
     """TrainingArguments keyword arguments that work across transformers versions."""
     t = dict(cfg["training"])
@@ -268,8 +305,14 @@ def _resolve_fp16(setting: Any) -> bool:
     return bool(torch.cuda.is_available())
 
 
-def _evaluate(trainer: Any, dataset: EncodedDataset, df: pd.DataFrame, labels: list[str],
-              id2label: Mapping[int, str], label_col: str) -> tuple[dict[str, Any], np.ndarray]:
+def _evaluate(
+    trainer: Any,
+    dataset: EncodedDataset,
+    df: pd.DataFrame,
+    labels: list[str],
+    id2label: Mapping[int, str],
+    label_col: str,
+) -> tuple[dict[str, Any], np.ndarray]:
     output = trainer.predict(dataset)
     logits = output.predictions[0] if isinstance(output.predictions, tuple) else output.predictions
     predicted = np.array([id2label[i] for i in np.argmax(logits, axis=-1)], dtype=object)
@@ -289,16 +332,21 @@ def _remove_checkpoints(path: Path) -> None:
 
 def format_run_summary(report: Mapping[str, Any]) -> str:
     lines = [
-        f"# XLM-RoBERTa run: {report['run_name']}", "",
+        f"# XLM-RoBERTa run: {report['run_name']}",
+        "",
         f"- Base model: `{report['model_name']}`, seed {report['seed']}, smoke run: {report['data']['smoke']}",
         f"- Training rows: {report['data']['train_rows']:,} (label counts {report['data']['train_label_counts']})",
         f"- Best checkpoint metric (validation macro-F1): {report['best_metric']}",
-        f"- Training time: {report['fit_seconds']:.0f}s", "",
-        "| Dataset | Role | Rows | Macro-F1 | Accuracy |", "| --- | --- | ---: | ---: | ---: |",
+        f"- Training time: {report['fit_seconds']:.0f}s",
+        "",
+        "| Dataset | Role | Rows | Macro-F1 | Accuracy |",
+        "| --- | --- | ---: | ---: | ---: |",
     ]
     for name, entry in report["evaluations"].items():
         m = entry["metrics"]
-        lines.append(f"| {name} | {entry['role']} | {m['num_examples']:,} | {m['macro_f1']:.4f} | {m['accuracy']:.4f} |")
+        lines.append(
+            f"| {name} | {entry['role']} | {m['num_examples']:,} | {m['macro_f1']:.4f} | {m['accuracy']:.4f} |"
+        )
     lines += ["", "The test split was not used.", ""]
     return "\n".join(lines)
 
@@ -338,7 +386,11 @@ def train_model(
         import torch
         import transformers
         from transformers import (
-            AutoModelForSequenceClassification, AutoTokenizer, DataCollatorWithPadding, Trainer, TrainingArguments,
+            AutoModelForSequenceClassification,
+            AutoTokenizer,
+            DataCollatorWithPadding,
+            Trainer,
+            TrainingArguments,
         )
     except ImportError as exc:
         raise ImportError("Training needs torch and transformers: pip install torch transformers accelerate") from exc
@@ -349,8 +401,9 @@ def train_model(
     lengths = token_length_stats(tokenizer, data.train[text_col].tolist(), max_length, seed)
     logger.info("Token lengths: %s", lengths)
     if lengths["truncated_share"] > 0.01:
-        logger.warning("%.1f%% of texts exceed max_length=%d and will be truncated",
-                       100 * lengths["truncated_share"], max_length)
+        logger.warning(
+            "%.1f%% of texts exceed max_length=%d and will be truncated", 100 * lengths["truncated_share"], max_length
+        )
 
     encode = lambda df: encode_dataframe(tokenizer, df, label_to_id, max_length, text_col, label_col)  # noqa: E731
     train_ds, val_ds = encode(data.train), encode(data.validation)
@@ -361,19 +414,26 @@ def train_model(
     )
     field_names = {f.name for f in dataclasses.fields(TrainingArguments)}
     checkpoints = model_dir / "checkpoints"
-    args = TrainingArguments(**build_training_kwargs(
-        cfg, seed, str(checkpoints), field_names, _resolve_fp16(cfg["training"].get("fp16", "auto")), smoke
-    ))
+    args = TrainingArguments(
+        **build_training_kwargs(
+            cfg, seed, str(checkpoints), field_names, _resolve_fp16(cfg["training"].get("fp16", "auto")), smoke
+        )
+    )
     log_path = model_dir / "training_log.jsonl"
     patience = 0 if smoke else int(cfg["training"].get("early_stopping_patience", 0))
     trainer_kwargs: dict[str, Any] = dict(
-        model=model, args=args, train_dataset=train_ds, eval_dataset=val_ds,
+        model=model,
+        args=args,
+        train_dataset=train_ds,
+        eval_dataset=val_ds,
         data_collator=DataCollatorWithPadding(tokenizer),
         compute_metrics=make_hf_compute_metrics([id2label[i] for i in sorted(id2label)]),
         callbacks=build_callbacks(patience, log_path),
     )
     # `tokenizer=` was replaced by `processing_class=` in recent transformers releases.
-    tokenizer_arg = "processing_class" if "processing_class" in inspect.signature(Trainer.__init__).parameters else "tokenizer"
+    tokenizer_arg = (
+        "processing_class" if "processing_class" in inspect.signature(Trainer.__init__).parameters else "tokenizer"
+    )
     trainer_kwargs[tokenizer_arg] = tokenizer
     trainer = Trainer(**trainer_kwargs)
 
@@ -394,25 +454,44 @@ def train_model(
     write_json(label_to_id, model_dir / "label_mapping.json")
     state = trainer.state
     report: dict[str, Any] = {
-        "run_name": run_name, "model_name": cfg["model_name"], "seed": seed,
+        "run_name": run_name,
+        "model_name": cfg["model_name"],
+        "seed": seed,
         "best_checkpoint": state.best_model_checkpoint and Path(state.best_model_checkpoint).name,
-        "best_metric": state.best_metric, "epochs_run": state.epoch, "fit_seconds": round(fit_seconds, 1),
-        "data": data.info, "token_lengths": lengths, "evaluations": evaluations,
+        "best_metric": state.best_metric,
+        "epochs_run": state.epoch,
+        "fit_seconds": round(fit_seconds, 1),
+        "data": data.info,
+        "token_lengths": lengths,
+        "evaluations": evaluations,
         "log_history": state.log_history,
     }
     write_json(
-        {"seed": seed, "config": dict(cfg), "labels": labels, "data": data.info, "data_files_sha256": data.file_hashes,
-         "token_lengths": lengths,
-         "environment": {"python": platform.python_version(), "torch": torch.__version__,
-                         "transformers": transformers.__version__}},
+        {
+            "seed": seed,
+            "config": dict(cfg),
+            "labels": labels,
+            "data": data.info,
+            "data_files_sha256": data.file_hashes,
+            "token_lengths": lengths,
+            "environment": {
+                "python": platform.python_version(),
+                "torch": torch.__version__,
+                "transformers": transformers.__version__,
+            },
+        },
         model_dir / "training_config.json",
     )
     write_json({"seed": seed, "best_metric": state.best_metric, "evaluations": evaluations}, model_dir / "metrics.json")
 
     wrong = data.validation[label_col].to_numpy() != val_pred
-    errors = pd.DataFrame({text_col: data.validation[text_col].to_numpy()[wrong],
-                           "true_label": data.validation[label_col].to_numpy()[wrong],
-                           "predicted_label": val_pred[wrong]})
+    errors = pd.DataFrame(
+        {
+            text_col: data.validation[text_col].to_numpy()[wrong],
+            "true_label": data.validation[label_col].to_numpy()[wrong],
+            "predicted_label": val_pred[wrong],
+        }
+    )
     write_json(report, metrics_dir / f"{run_name}_validation.json")
     write_csv(errors, reports_dir / f"{run_name}_misclassified_validation.csv")
     (reports_dir / f"{run_name}_summary.md").write_text(format_run_summary(report), encoding="utf-8", newline="\n")

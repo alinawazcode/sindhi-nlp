@@ -1,4 +1,5 @@
 """Tests for the HTTP API. Skipped automatically if fastapi or httpx is not installed."""
+
 import joblib
 import pytest
 import yaml
@@ -18,9 +19,7 @@ from sindhi_nlp.inference.predictor import SentimentPredictor  # noqa: E402
 from sindhi_nlp.utils.config import ConfigError  # noqa: E402
 
 TRAIN = (
-    [("خراب ڏکيو بڪار", "negative")] * 20
-    + [("شهر ڪتاب ميز", "neutral")] * 20
-    + [("سٺو شاندار خوش", "positive")] * 20
+    [("خراب ڏکيو بڪار", "negative")] * 20 + [("شهر ڪتاب ميز", "neutral")] * 20 + [("سٺو شاندار خوش", "positive")] * 20
 )
 POSITIVE, NEGATIVE = "سٺو شاندار خوش", "خراب ڏکيو بڪار"
 
@@ -35,7 +34,8 @@ def project(tmp_path):
     joblib.dump(pipeline, model_dir / "model.joblib")
     (tmp_path / "configs").mkdir()
     (tmp_path / "configs" / "inference.yaml").write_text(
-        yaml.safe_dump({"model_dir": "artifacts/models/toy", "api": {"max_batch_size": 3}}), encoding="utf-8")
+        yaml.safe_dump({"model_dir": "artifacts/models/toy", "api": {"max_batch_size": 3}}), encoding="utf-8"
+    )
     return tmp_path
 
 
@@ -48,6 +48,7 @@ def client(project):
 
 
 # ------------------------------------------------------------------ status
+
 
 def test_health_when_model_is_loaded(client):
     response = client.get("/health")
@@ -69,6 +70,7 @@ def test_openapi_docs_are_served(client):
 
 
 # --------------------------------------------------------------- predictions
+
 
 def test_predict(client):
     response = client.post("/predict", json={"text": POSITIVE})
@@ -97,6 +99,7 @@ def test_predict_batch_keeps_order(client):
 
 
 # ----------------------------------------------------------- invalid requests
+
 
 def assert_error(response, status, code):
     assert response.status_code == status, response.text
@@ -134,7 +137,9 @@ def test_batch_rejects_bad_payloads(client, payload):
 
 
 def test_batch_names_the_bad_item(client):
-    error = assert_error(client.post("/predict/batch", json={"texts": [POSITIVE, "  ", NEGATIVE]}), 422, "invalid_input")
+    error = assert_error(
+        client.post("/predict/batch", json={"texts": [POSITIVE, "  ", NEGATIVE]}), 422, "invalid_input"
+    )
     assert "Item 1" in error["message"]
 
 
@@ -150,6 +155,7 @@ def test_unknown_route_and_wrong_method(client):
 
 
 # ------------------------------------------------------------ failure modes
+
 
 def test_service_stays_up_when_the_model_cannot_load(tmp_path):
     (tmp_path / "configs").mkdir()
@@ -190,6 +196,7 @@ def test_predictor_can_be_injected(project):
 
 # ------------------------------------------------------------- settings / CORS
 
+
 def test_cors_is_off_by_default_and_configurable(project):
     origin = {"Origin": "http://localhost:3000", "Access-Control-Request-Method": "POST"}
     with TestClient(create_app(settings=load_settings(project_root=project))) as plain:
@@ -197,14 +204,17 @@ def test_cors_is_off_by_default_and_configurable(project):
 
     settings = Settings(project / "configs" / "inference.yaml", project, 3, ("http://localhost:3000",))
     with TestClient(create_app(settings=settings)) as cors:
-        assert cors.options("/predict", headers=origin).headers["access-control-allow-origin"] == "http://localhost:3000"
+        assert (
+            cors.options("/predict", headers=origin).headers["access-control-allow-origin"] == "http://localhost:3000"
+        )
 
 
 def test_settings_from_config_and_environment(project, monkeypatch):
     assert load_settings(project_root=project).max_batch_size == 3
     other = project / "other.yaml"
-    other.write_text(yaml.safe_dump({"model_dir": "x", "api": {"max_batch_size": 9, "cors_origins": ["http://a"]}}),
-                     encoding="utf-8")
+    other.write_text(
+        yaml.safe_dump({"model_dir": "x", "api": {"max_batch_size": 9, "cors_origins": ["http://a"]}}), encoding="utf-8"
+    )
     monkeypatch.setenv("SINDHI_NLP_CONFIG", str(other))
     monkeypatch.setenv("SINDHI_NLP_ROOT", str(project))
     settings = load_settings()
@@ -212,9 +222,13 @@ def test_settings_from_config_and_environment(project, monkeypatch):
     assert settings.project_root == project.resolve()
 
 
-@pytest.mark.parametrize("api", [{"max_batch_size": 0}, {"max_batch_size": "ten"}, {"cors_origins": "http://a"}, "text"])
+@pytest.mark.parametrize(
+    "api", [{"max_batch_size": 0}, {"max_batch_size": "ten"}, {"cors_origins": "http://a"}, "text"]
+)
 def test_invalid_api_settings_are_rejected(project, api):
-    (project / "configs" / "inference.yaml").write_text(yaml.safe_dump({"model_dir": "x", "api": api}), encoding="utf-8")
+    (project / "configs" / "inference.yaml").write_text(
+        yaml.safe_dump({"model_dir": "x", "api": api}), encoding="utf-8"
+    )
     with pytest.raises(ConfigError):
         load_settings(project_root=project)
 

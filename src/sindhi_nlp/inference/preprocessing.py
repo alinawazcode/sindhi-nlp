@@ -5,6 +5,7 @@ inference see identically normalized text. The cleaning options a model was
 trained with live in ``preprocessing.json`` next to the model; if that file is
 missing the project defaults are used (they match ``configs/base.yaml``).
 """
+
 from __future__ import annotations
 
 import json
@@ -60,6 +61,7 @@ def write_preprocessing_config(model_dir: str | Path, options: CleaningOptions, 
     path = Path(model_dir) / PREPROCESSING_FILE
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {"cleaning": options.to_dict(), "source": source}
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
-                    encoding="utf-8", newline="\n")
+    path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     return path

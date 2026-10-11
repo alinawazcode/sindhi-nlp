@@ -178,7 +178,9 @@ def test_grouped_split_sizes_stratification_and_completeness():
     assert {k: len(v) for k, v in splits.items()} == {"train": 672, "validation": 84, "test": 84}
     for name, per_label in (("train", 224), ("validation", 28), ("test", 28)):
         assert splits[name]["Label"].value_counts().to_dict() == {
-            "negative": per_label, "neutral": per_label, "positive": per_label,
+            "negative": per_label,
+            "neutral": per_label,
+            "positive": per_label,
         }
     assert sorted(pd.concat(splits.values())["Text"]) == sorted(df["Text"])
     assert info["groups"] == 120 and info["max_group_size"] == 7
@@ -202,12 +204,16 @@ def test_grouped_split_with_uneven_groups_never_exceeds_budgets():
     splits, _ = grouped_stratified_split(df, RATIOS, 42, make_group_key_fn(DAY_GROUPING))
     assert len(splits["test"]) <= round(len(df) * 0.1) + 3
     assert group_overlap(splits, make_group_key_fn(DAY_GROUPING)) == {
-        "train_validation": 0, "train_test": 0, "validation_test": 0,
+        "train_validation": 0,
+        "train_test": 0,
+        "validation_test": 0,
     }
 
 
 def test_group_key_function_rules():
-    key = make_group_key_fn({"normalizers": [{"pattern": "Mon|Tue", "replace": "<DAY>"}], "ignore_punctuation_digits": True})
+    key = make_group_key_fn(
+        {"normalizers": [{"pattern": "Mon|Tue", "replace": "<DAY>"}], "ignore_punctuation_digits": True}
+    )
     assert key("Sale on Mon, 5 items!") == key("Sale on Tue 7 items") == "Sale on DAY items"
     with pytest.raises(ConfigError, match="Invalid regex"):
         make_group_key_fn({"normalizers": [{"pattern": "(unclosed"}]})
@@ -231,8 +237,12 @@ def test_pipeline_grouping_is_reproducible(make_templated_project):
     root_b, config_b = make_templated_project("b")
     run_pipeline(config_a, root_a)
     run_pipeline(config_b, root_b)
-    for rel in ("data/processed/train.csv", "data/processed/validation.csv", "data/processed/test.csv",
-                "data/reports/split_report.json"):
+    for rel in (
+        "data/processed/train.csv",
+        "data/processed/validation.csv",
+        "data/processed/test.csv",
+        "data/reports/split_report.json",
+    ):
         assert _sha(root_a / rel) == _sha(root_b / rel), rel
 
 

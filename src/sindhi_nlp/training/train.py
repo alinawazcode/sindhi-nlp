@@ -1,8 +1,9 @@
 """Command-line entry point for XLM-RoBERTa fine-tuning.
 
-    PYTHONPATH=src python -m sindhi_nlp.training.train --smoke      # quick pipeline check
-    PYTHONPATH=src python -m sindhi_nlp.training.train              # full run (use a GPU)
+PYTHONPATH=src python -m sindhi_nlp.training.train --smoke      # quick pipeline check
+PYTHONPATH=src python -m sindhi_nlp.training.train              # full run (use a GPU)
 """
+
 from __future__ import annotations
 
 import argparse

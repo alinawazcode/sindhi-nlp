@@ -1,0 +1,29 @@
+# Versions this project was developed and tested with (Python 3.12).
+# Install everything for local work:   pip install -r requirements.txt
+# Or install as a package instead:     pip install -e ".[api,transformers,dev]"
+
+# --- core ---
+numpy==2.5.2
+pandas==3.0.5
+scikit-learn==1.9.1
+scipy==1.18.0
+joblib==1.6.0
+pyyaml==6.0.3
+
+# --- XLM-RoBERTa training and inference ---
+torch==2.13.0
+transformers==5.17.0
+accelerate==1.15.0
+
+# --- HTTP API ---
+fastapi==0.141.1
+uvicorn==0.53.0
+pydantic==2.13.4
+
+# --- tests, linting, type checking ---
+pytest==9.1.1
+httpx==0.28.1
+ruff>=0.17,<0.18
+mypy>=2.4,<3
+types-PyYAML
+pandas-stubs

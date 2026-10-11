@@ -3,6 +3,7 @@
 The SDK uses plain dataclasses so it has no web dependencies; these models
 describe the JSON that goes over the wire.
 """
+
 from __future__ import annotations
 
 from typing import Annotated, Literal

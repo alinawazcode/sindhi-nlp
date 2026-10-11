@@ -1,4 +1,5 @@
 """Typed result objects and errors for the prediction interface."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -40,12 +41,12 @@ class Prediction:
 @dataclass(frozen=True)
 class ModelInfo:
     name: str
-    backend: str                      # "sklearn" or "transformers"
+    backend: str  # "sklearn" or "transformers"
     model_dir: str
     labels: tuple[str, ...]
-    confidence_type: str              # "probability" or "score"
+    confidence_type: str  # "probability" or "score"
     device: str = "cpu"
-    max_length: int | None = None     # token limit (transformers only)
+    max_length: int | None = None  # token limit (transformers only)
     preprocessing_source: str = "defaults"
     seed: int | None = None
     base_model: str | None = None

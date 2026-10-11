@@ -22,9 +22,9 @@ def _w(i: int) -> str:
 
 def _natural_rows():
     rows = [(f"جملو {label} {_w(i)}", CAPITALIZED[label]) for label in LABELS for i in range(100)]
-    rows += [(f"جملو negative {_w(i)}", "Negative") for i in range(5)]            # exact duplicates
-    rows += [(f"جملو positive {_w(i)}!", "Positive") for i in range(5)]           # punctuation variants
-    rows += [("   ", "Positive"), ("متن", "Mixed")]                            # blank text, invalid label
+    rows += [(f"جملو negative {_w(i)}", "Negative") for i in range(5)]  # exact duplicates
+    rows += [(f"جملو positive {_w(i)}!", "Positive") for i in range(5)]  # punctuation variants
+    rows += [("   ", "Positive"), ("متن", "Mixed")]  # blank text, invalid label
     return rows
 
 
@@ -129,15 +129,17 @@ def evaluated_project(ext_project):
 
 def test_evaluate_validation_split(evaluated_project):
     root, base, model_dir = evaluated_project
-    report = evaluate_model(model_dir, "data/external/processed/validation.csv", "validation",
-                            base_config_path=base, project_root=root)
+    report = evaluate_model(
+        model_dir, "data/external/processed/validation.csv", "validation", base_config_path=base, project_root=root
+    )
     assert report["dataset"]["split"] == "validation"
     assert 0.0 <= report["metrics"]["macro_f1"] <= 1.0
     assert (root / "artifacts" / "metrics" / "toy_model_external_validation.json").is_file()
     assert (root / "artifacts" / "reports" / "toy_model_external_validation_misclassified.csv").is_file()
     # Validation can be re-scored freely.
-    evaluate_model(model_dir, "data/external/processed/validation.csv", "validation",
-                   base_config_path=base, project_root=root)
+    evaluate_model(
+        model_dir, "data/external/processed/validation.csv", "validation", base_config_path=base, project_root=root
+    )
 
 
 def test_test_split_needs_final_flag_and_runs_once(evaluated_project):
@@ -162,5 +164,10 @@ def test_evaluate_requires_a_model(ext_project):
     root, base, ext = ext_project
     run_external_prep(base, ext, root)
     with pytest.raises(FileNotFoundError, match="model.joblib"):
-        evaluate_model("artifacts/models/missing", "data/external/processed/validation.csv", "validation",
-                       base_config_path=base, project_root=root)
+        evaluate_model(
+            "artifacts/models/missing",
+            "data/external/processed/validation.csv",
+            "validation",
+            base_config_path=base,
+            project_root=root,
+        )

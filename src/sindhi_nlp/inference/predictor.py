@@ -9,6 +9,7 @@ the scikit-learn baseline (``model.joblib``) and a fine-tuned Hugging Face
 model (``model.safetensors``). torch and transformers are imported only when
 a Hugging Face model is loaded.
 """
+
 from __future__ import annotations
 
 import json
@@ -32,10 +33,10 @@ DEFAULT_BATCH_SIZE = 32
 class Backend:
     """What the predictor needs from a model: label names and a scoring function."""
 
-    kind: str                                         # "sklearn" | "transformers"
+    kind: str  # "sklearn" | "transformers"
     labels: list[str]
-    score_fn: Callable[[list[str]], np.ndarray]       # texts -> (n, num_labels) raw scores
-    confidence_type: str                              # "probability" | "score"
+    score_fn: Callable[[list[str]], np.ndarray]  # texts -> (n, num_labels) raw scores
+    confidence_type: str  # "probability" | "score"
     device: str = "cpu"
     max_length: int | None = None
 
@@ -66,12 +67,14 @@ def _load_sklearn_backend(model_dir: Path) -> Backend:
         raise ModelLoadError(f"Could not load {model_dir / SKLEARN_FILE}: {exc}") from exc
 
     if hasattr(pipeline, "decision_function"):
+
         def score_fn(texts: list[str]) -> np.ndarray:
             scores = np.asarray(pipeline.decision_function(texts), dtype=float)
             return np.column_stack([-scores, scores]) if scores.ndim == 1 else scores
 
         return Backend("sklearn", labels, score_fn, confidence_type="score")
     if hasattr(pipeline, "predict_proba"):
+
         def proba_fn(texts: list[str]) -> np.ndarray:
             return np.log(np.clip(pipeline.predict_proba(texts), 1e-12, 1.0))
 
@@ -121,7 +124,9 @@ def _load_transformers_backend(model_dir: Path, device: str, max_length: int) ->
             logits = model(**batch).logits
         return logits.float().cpu().numpy()
 
-    return Backend("transformers", labels, score_fn, confidence_type="probability", device=resolved, max_length=max_length)
+    return Backend(
+        "transformers", labels, score_fn, confidence_type="probability", device=resolved, max_length=max_length
+    )
 
 
 class SentimentPredictor:
@@ -168,14 +173,18 @@ class SentimentPredictor:
         if (model_dir / SKLEARN_FILE).is_file():
             backend = _load_sklearn_backend(model_dir)
         elif any((model_dir / name).is_file() for name in TRANSFORMERS_FILES):
-            backend = _load_transformers_backend(model_dir, device, int(max_length or saved_length or DEFAULT_MAX_LENGTH))
+            backend = _load_transformers_backend(
+                model_dir, device, int(max_length or saved_length or DEFAULT_MAX_LENGTH)
+            )
         else:
             raise ModelNotFoundError(
                 f"No model files in {model_dir}: expected {SKLEARN_FILE} or one of {', '.join(TRANSFORMERS_FILES)}"
             )
 
         preprocessor = (
-            TextPreprocessor.from_model_dir(model_dir, max_chars) if max_chars else TextPreprocessor.from_model_dir(model_dir)
+            TextPreprocessor.from_model_dir(model_dir, max_chars)
+            if max_chars
+            else TextPreprocessor.from_model_dir(model_dir)
         )
         info = ModelInfo(
             name=model_dir.name,
@@ -192,7 +201,9 @@ class SentimentPredictor:
         return cls(backend, preprocessor, info, batch_size, confidence_threshold)
 
     @classmethod
-    def from_config(cls, config_path: str | Path = "configs/inference.yaml", project_root: str | Path = ".") -> "SentimentPredictor":
+    def from_config(
+        cls, config_path: str | Path = "configs/inference.yaml", project_root: str | Path = "."
+    ) -> "SentimentPredictor":
         """Build a predictor from ``configs/inference.yaml``."""
         root = Path(project_root).resolve()
         cfg = load_config(config_path, required=("model_dir",))
@@ -256,16 +267,15 @@ class SentimentPredictor:
                     raise InvalidInputError(f"Item {index}: {exc}") from exc
                 prepared.append(None)
 
-        valid = [i for i, value in enumerate(prepared) if value is not None]
+        valid: list[tuple[int, str]] = [(i, value) for i, value in enumerate(prepared) if value is not None]
         results: list[Prediction | None] = [None] * len(items)
         for start in range(0, len(valid), size):
-            chunk = valid[start:start + size]
-            scores = np.asarray(self._backend.score_fn([prepared[i] for i in chunk]), dtype=float)
-            if scores.shape != (len(chunk), len(self._backend.labels)):
-                raise ModelLoadError(
-                    f"The model returned scores of shape {scores.shape}, expected {(len(chunk), len(self._backend.labels))}"
-                )
-            for row, index in zip(softmax(scores), chunk):
+            chunk = valid[start : start + size]
+            scores = np.asarray(self._backend.score_fn([text for _, text in chunk]), dtype=float)
+            expected = (len(chunk), len(self._backend.labels))
+            if scores.shape != expected:
+                raise ModelLoadError(f"The model returned scores of shape {scores.shape}, expected {expected}")
+            for row, (index, _) in zip(softmax(scores), chunk):
                 results[index] = self._to_prediction(items[index], row)
         return results
 
