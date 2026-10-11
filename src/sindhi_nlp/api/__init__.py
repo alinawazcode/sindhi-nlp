@@ -1,0 +1,1 @@
+"""HTTP API for Sindhi sentiment prediction (FastAPI)."""

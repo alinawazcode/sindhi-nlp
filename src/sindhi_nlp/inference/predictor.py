@@ -221,6 +221,7 @@ class SentimentPredictor:
 
     def predict(self, text: str) -> Prediction:
         """Classify one text. Raises ``InvalidInputError`` for empty or unsuitable input."""
+        self._preprocessor.prepare(text)  # raises a plain InvalidInputError (no "Item 0:" prefix)
         result = self.predict_batch([text])[0]
         assert result is not None  # errors="raise" never returns None
         return result
