@@ -1,5 +1,7 @@
 # sindhi-nlp
 
+[![tests](https://github.com/alinawazcode/sindhi-nlp/actions/workflows/tests.yml/badge.svg)](https://github.com/alinawazcode/sindhi-nlp/actions/workflows/tests.yml)
+
 Sentiment classification for Sindhi text. Given a Sindhi sentence, it returns `negative`, `neutral`, or `positive` with class probabilities.
 
 The repository contains a reproducible training pipeline, a fine-tuned XLM-RoBERTa model, a lightweight TF-IDF baseline, a Python SDK, a command-line tool, and an HTTP API.
@@ -26,7 +28,7 @@ Per-class scores, confusion matrices, and the paired comparison are written to `
 Requires Python 3.11 or newer.
 
 ```bash
-git clone <this-repository>
+git clone https://github.com/alinawazcode/sindhi-nlp.git
 cd sindhi-nlp
 pip install -e ".[transformers]"      # SDK, CLI, and the XLM-R model
 pip install -e ".[api]"               # add the HTTP API
@@ -152,6 +154,7 @@ The code and the trained model weights are released under the MIT License (see [
   author  = {Nawaz, Ali},
   title   = {sindhi-nlp: Sentiment classification for Sindhi text},
   year    = {2026},
+  url     = {https://github.com/alinawazcode/sindhi-nlp},
   version = {0.1.0}
 }
 ```

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,14 +8,14 @@ dynamic = ["version"]
 description = "Sentiment classification for Sindhi text: training pipeline, Python SDK, command line, and HTTP API."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Ali Nawaz", email = "alinawaz.code@gmail.com" }]
 keywords = ["sindhi", "nlp", "sentiment-analysis", "xlm-roberta", "low-resource-languages"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -52,8 +52,11 @@ dev = [
 [project.scripts]
 sindhi-nlp = "sindhi_nlp.cli.main:main"
 
-# [project.urls]
-# Homepage = "https://github.com/<your-account>/sindhi-nlp"
+[project.urls]
+Homepage = "https://github.com/alinawazcode/sindhi-nlp"
+Repository = "https://github.com/alinawazcode/sindhi-nlp"
+Issues = "https://github.com/alinawazcode/sindhi-nlp/issues"
+Model = "https://huggingface.co/alinawazmahar/sindhi-sentiment-xlmr"
 
 [tool.setuptools.dynamic]
 version = { attr = "sindhi_nlp.__version__" }
