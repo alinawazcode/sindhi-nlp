@@ -33,7 +33,7 @@ pip install -e ".[api]"               # add the HTTP API
 pip install -e ".[dev]"               # add tests, linting, type checking
 ```
 
-Model weights are not stored in Git. Put a trained model folder under `artifacts/models/` (for example `artifacts/models/xlmr_mixed`) or train your own with the steps in [Reproduce the results](#reproduce-the-results).
+Model weights are not stored in Git. The trained XLM-R model is published on Hugging Face as [`alinawazmahar/sindhi-sentiment-xlmr`](https://huggingface.co/alinawazmahar/sindhi-sentiment-xlmr) and is downloaded and cached automatically the first time you use that name. You can also point at a local model folder (for example `artifacts/models/xlmr_mixed`) or train your own with the steps in [Reproduce the results](#reproduce-the-results).
 
 ## Use it
 
@@ -42,13 +42,14 @@ Model weights are not stored in Git. Put a trained model folder under `artifacts
 ```python
 from sindhi_nlp import SentimentPredictor
 
-predictor = SentimentPredictor.from_pretrained("artifacts/models/xlmr_mixed")
+# a Hugging Face name (downloaded once, then cached) or a local folder
+predictor = SentimentPredictor.from_pretrained("alinawazmahar/sindhi-sentiment-xlmr")
 
 result = predictor.predict("اڄ جو ڏينهن تمام سٺو آهي")
-print(result.label)            # positive
-print(result.probabilities)    # {'negative': ..., 'neutral': ..., 'positive': ...}
+print(result.label)  # positive
+print(result.probabilities)  # {'negative': ..., 'neutral': ..., 'positive': ...}
 
-results = predictor.predict_batch(["...", "..."])   # keeps the input order
+results = predictor.predict_batch(["...", "..."])  # keeps the input order
 ```
 
 Input is cleaned the same way as during training. Empty or non-text input raises `InvalidInputError`, and inputs beyond the model's token limit are truncated.
@@ -56,7 +57,7 @@ Input is cleaned the same way as during training. Empty or non-text input raises
 **Command line**
 
 ```bash
-sindhi-nlp predict "اڄ جو ڏينهن تمام سٺو آهي" --model-dir artifacts/models/xlmr_mixed
+sindhi-nlp predict "اڄ جو ڏينهن تمام سٺو آهي" --model-dir alinawazmahar/sindhi-sentiment-xlmr
 sindhi-nlp batch --input texts.csv --output results.csv --model-dir artifacts/models/xlmr_mixed
 sindhi-nlp info --model-dir artifacts/models/xlmr_mixed
 ```

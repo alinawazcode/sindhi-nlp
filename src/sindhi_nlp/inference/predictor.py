@@ -20,6 +20,7 @@ from typing import Any, Callable, Iterable, Literal
 import numpy as np
 
 from ..utils.config import ConfigError, load_config
+from . import hub
 from .preprocessing import TextPreprocessor
 from .schemas import InvalidInputError, ModelInfo, ModelLoadError, ModelNotFoundError, Prediction
 
@@ -161,8 +162,14 @@ class SentimentPredictor:
         max_length: int | None = None,
         confidence_threshold: float | None = None,
         max_chars: int | None = None,
+        revision: str | None = None,
+        cache_dir: str | Path | None = None,
     ) -> "SentimentPredictor":
-        model_dir = Path(model_dir)
+        """Load a model from a local folder, or by Hugging Face name (``owner/model-name``).
+
+        A local folder takes priority. ``revision`` and ``cache_dir`` only apply to Hub downloads.
+        """
+        model_dir = hub.resolve_model_path(model_dir, revision, cache_dir)
         if not model_dir.is_dir():
             raise ModelNotFoundError(f"Model folder not found: {model_dir}")
 
@@ -209,8 +216,10 @@ class SentimentPredictor:
         cfg = load_config(config_path, required=("model_dir",))
         if cfg.get("device", "auto") not in ("auto", "cpu", "cuda"):
             raise ConfigError("device must be 'auto', 'cpu', or 'cuda'")
+        local = root / cfg["model_dir"]
         return cls.from_pretrained(
-            root / cfg["model_dir"],
+            local if local.is_dir() else str(cfg["model_dir"]),  # a name such as owner/model loads from the Hub
+            revision=cfg.get("revision"),
             device=cfg.get("device", "auto"),
             batch_size=int(cfg.get("batch_size") or DEFAULT_BATCH_SIZE),
             max_length=cfg.get("max_length"),

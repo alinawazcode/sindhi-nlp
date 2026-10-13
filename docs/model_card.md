@@ -8,6 +8,7 @@
 | Task | Sentence-level sentiment classification of Sindhi text: `negative`, `neutral`, `positive` |
 | Main model | `xlmr_mixed`: `xlm-roberta-base` fine-tuned for sequence classification |
 | Reference model | `baseline_natural`: TF-IDF (word 1-2 grams) + LinearSVC |
+| Hugging Face | `alinawazmahar/sindhi-sentiment-xlmr` |
 | Framework | PyTorch, Hugging Face Transformers; scikit-learn for the baseline |
 | Seed | 42 |
 | Author | Ali Nawaz |
@@ -78,17 +79,36 @@ The trained model weights in this repository are free to use, including for comm
 
 Sentiment labels are a coarse and subjective summary of text. Predictions can be wrong, and errors may not be evenly distributed across topics, dialects, or communities. Use human review for anything consequential. The natural dataset contains sentences taken from newspapers and articles, so check its terms before reusing or redistributing it.
 
-## How to use (until the SDK is released)
+## How to use
+
+With plain Transformers (no extra package needed):
 
 ```python
 from transformers import pipeline
-from sindhi_nlp.data.clean_data import clean_text
 
-classifier = pipeline("text-classification", model="artifacts/models/xlmr_mixed")
-print(classifier(clean_text("اڄ جو ڏينهن تمام سٺو آهي")))
+classifier = pipeline("text-classification", model="alinawazmahar/sindhi-sentiment-xlmr")
+print(classifier("اڄ جو ڏينهن تمام سٺو آهي", truncation=True, max_length=128))
 ```
 
-## Files
+The model was trained on text cleaned with Unicode NFKC normalization, removal of zero-width and bidirectional control characters and tatweel, and whitespace normalization. The Transformers pipeline does not apply this cleaning. For results that match the evaluation, use the project's `sindhi-nlp` package, which cleans the text for you and also returns the probability of every class:
 
-Model folder: `artifacts/models/xlmr_mixed/` (weights, tokenizer, `label_mapping.json`, `training_config.json`, `metrics.json`, `training_log.jsonl`).
-Reports: `artifacts/metrics/`, `artifacts/reports/`.
+```python
+from sindhi_nlp import SentimentPredictor
+
+predictor = SentimentPredictor.from_pretrained("alinawazmahar/sindhi-sentiment-xlmr")
+result = predictor.predict("اڄ جو ڏينهن تمام سٺو آهي")
+print(result.label, result.confidence, result.probabilities)
+```
+
+The probabilities are overconfident (see Limitations), so use them as a ranking score rather than as calibrated probabilities. Install the package from the project repository (`pip install -e ".[transformers]"`).
+
+## Files in this repository
+
+| File | Purpose |
+| --- | --- |
+| `model.safetensors`, `config.json` | XLM-RoBERTa weights and architecture, with the labels `negative`, `neutral`, `positive` |
+| `tokenizer.json`, `tokenizer_config.json` | Tokenizer |
+| `label_mapping.json` | Label to class-id mapping |
+| `preprocessing.json` | Text-cleaning settings used in training |
+| `training_config.json` | Training settings, seed, data file hashes, library versions |
+| `metrics.json` | Validation metrics |

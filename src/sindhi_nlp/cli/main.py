@@ -70,14 +70,20 @@ def load_predictor(args: argparse.Namespace) -> SentimentPredictor:
     """Build the predictor from --model-dir, or from the inference config."""
     root = Path(args.project_root).resolve()
     if args.model_dir:
-        return SentimentPredictor.from_pretrained(root / args.model_dir, device=args.device or "auto")
+        local = root / args.model_dir
+        # A local folder wins; otherwise a name such as owner/model is loaded from Hugging Face.
+        return SentimentPredictor.from_pretrained(
+            local if local.is_dir() else args.model_dir, device=args.device or "auto"
+        )
     config_path = root / args.config
     if not config_path.is_file():
         raise ConfigError(f"No --model-dir given and {config_path} does not exist")
     cfg = load_config(config_path, required=("model_dir",))
+    local = root / cfg["model_dir"]
     return SentimentPredictor.from_pretrained(
-        root / cfg["model_dir"],
+        local if local.is_dir() else str(cfg["model_dir"]),
         device=args.device or cfg.get("device", "auto"),
+        revision=cfg.get("revision"),
         batch_size=int(cfg.get("batch_size") or 32),
         max_length=cfg.get("max_length"),
         confidence_threshold=cfg.get("confidence_threshold"),
