@@ -254,3 +254,16 @@ def test_jsonl_log_callback_records_events(tmp_path):
     records = [json.loads(line) for line in path.read_text("utf-8").splitlines()]
     assert [r["event"] for r in records] == ["log", "evaluate", "train_end"]
     assert records[1]["eval_macro_f1"] == 0.9 and records[2]["best_checkpoint"] == "ckpt-10"
+
+
+def test_early_stopping_without_transformers_gives_a_clear_error(monkeypatch):
+    import sindhi_nlp.training.callbacks as callbacks
+
+    class Missing:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("transformers is required for early stopping: pip install transformers")
+
+    monkeypatch.setattr(callbacks, "EarlyStoppingCallback", Missing)
+    with pytest.raises(ImportError, match="pip install transformers"):
+        callbacks.build_callbacks(2, "log.jsonl")
+    assert len(callbacks.build_callbacks(0, "log.jsonl")) == 1  # patience 0 needs no early stopping at all

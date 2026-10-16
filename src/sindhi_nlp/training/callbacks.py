@@ -9,10 +9,13 @@ from typing import Any
 try:  # Allows importing this module (and testing it) without transformers installed.
     from transformers import EarlyStoppingCallback, TrainerCallback
 except ImportError:  # pragma: no cover - exercised only when transformers is missing
-    EarlyStoppingCallback = None  # type: ignore[assignment]
 
     class TrainerCallback:  # type: ignore[no-redef]
-        pass
+        """Stand-in so this module still imports without transformers."""
+
+    class EarlyStoppingCallback:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            raise ImportError("transformers is required for early stopping: pip install transformers")
 
 
 class JsonlLogCallback(TrainerCallback):
@@ -48,7 +51,5 @@ class JsonlLogCallback(TrainerCallback):
 def build_callbacks(early_stopping_patience: int, log_path: str | Path) -> list[Any]:
     callbacks: list[Any] = [JsonlLogCallback(log_path)]
     if early_stopping_patience and early_stopping_patience > 0:
-        if EarlyStoppingCallback is None:
-            raise ImportError("transformers is required for early stopping: pip install transformers")
         callbacks.append(EarlyStoppingCallback(early_stopping_patience=int(early_stopping_patience)))
     return callbacks

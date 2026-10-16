@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import random
 
@@ -16,11 +17,9 @@ def set_seed(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
 
-    try:
+    if importlib.util.find_spec("torch") is not None:
         import torch
-    except ImportError:
-        torch = None
-    if torch is not None:
+
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
