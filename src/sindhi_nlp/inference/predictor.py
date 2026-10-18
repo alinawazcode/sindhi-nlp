@@ -169,6 +169,8 @@ class SentimentPredictor:
 
         A local folder takes priority. ``revision`` and ``cache_dir`` only apply to Hub downloads.
         """
+        from_hub = isinstance(model_dir, str) and not Path(model_dir).is_dir() and hub.looks_like_repo_id(model_dir)
+        display_name = str(model_dir) if from_hub else None
         model_dir = hub.resolve_model_path(model_dir, revision, cache_dir)
         if not model_dir.is_dir():
             raise ModelNotFoundError(f"Model folder not found: {model_dir}")
@@ -194,7 +196,7 @@ class SentimentPredictor:
             else TextPreprocessor.from_model_dir(model_dir)
         )
         info = ModelInfo(
-            name=model_dir.name,
+            name=display_name or model_dir.name,
             backend=backend.kind,
             model_dir=str(model_dir),
             labels=tuple(backend.labels),

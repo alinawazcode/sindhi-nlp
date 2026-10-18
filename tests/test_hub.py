@@ -68,6 +68,7 @@ def test_loads_by_hub_name(fake_download):
     predictor = SentimentPredictor.from_pretrained(REPO, revision="v0.1.0", cache_dir="cache")
     assert predictor.predict("سٺو شاندار خوش").label == "positive"
     assert fake_download == [{"repo_id": REPO, "revision": "v0.1.0", "cache_dir": "cache"}]
+    assert predictor.info.name == REPO  # not the cache folder's hash
 
 
 def test_local_folder_wins_over_a_hub_name(fake_download, cached_model, tmp_path, monkeypatch):
@@ -135,3 +136,15 @@ def test_missing_huggingface_hub_package(monkeypatch):
     monkeypatch.setitem(sys.modules, "huggingface_hub", None)
     with pytest.raises(ModelLoadError, match="pip install huggingface_hub"):
         hub.download_model(REPO)
+
+
+def test_local_models_keep_their_folder_name(cached_model):
+    assert SentimentPredictor.from_pretrained(cached_model).info.name == "snapshot"
+
+
+def test_cli_without_model_dir_or_config_uses_the_published_model(fake_download, tmp_path, capsys):
+    assert main(["predict", "سٺو شاندار", "--project-root", str(tmp_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.out.startswith("positive")
+    assert REPO in captured.err and "1.1 GB" in captured.err
+    assert fake_download[0]["repo_id"] == REPO

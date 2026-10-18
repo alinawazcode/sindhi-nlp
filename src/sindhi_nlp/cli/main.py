@@ -27,6 +27,7 @@ from ..utils.config import ConfigError, load_config
 from ..utils.logging import setup_logging
 
 DEFAULT_CONFIG = "configs/inference.yaml"
+DEFAULT_MODEL = "alinawazmahar/sindhi-sentiment-xlmr"
 DEFAULT_BASE_CONFIG = "configs/base.yaml"
 KNOWN_ERRORS = (ModelNotFoundError, ModelLoadError, InvalidInputError, ConfigError, FileNotFoundError, ValueError)
 
@@ -77,7 +78,12 @@ def load_predictor(args: argparse.Namespace) -> SentimentPredictor:
         )
     config_path = root / args.config
     if not config_path.is_file():
-        raise ConfigError(f"No --model-dir given and {config_path} does not exist")
+        print(
+            f"No --model-dir and no {args.config}: using the published model {DEFAULT_MODEL} "
+            "(the first use downloads about 1.1 GB).",
+            file=sys.stderr,
+        )
+        return SentimentPredictor.from_pretrained(DEFAULT_MODEL, device=args.device or "auto")
     cfg = load_config(config_path, required=("model_dir",))
     local = root / cfg["model_dir"]
     return SentimentPredictor.from_pretrained(
