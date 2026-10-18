@@ -160,5 +160,5 @@ The code and the trained model weights are released under the MIT License (see [
 ```
 
 ## Author
-
+ 
 Ali Nawaz, alinawaz.code@gmail.com
