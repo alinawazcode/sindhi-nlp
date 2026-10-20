@@ -57,3 +57,4 @@ dist/
 .DS_Store
 Thumbs.db
 .vscode/
+pip-uninstall-*/
