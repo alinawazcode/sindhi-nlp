@@ -58,6 +58,17 @@ class PublishError(RuntimeError):
     """The model folder is not ready to publish, or the upload cannot proceed."""
 
 
+def explain_login_check_failure(exc: Exception) -> str:
+    """Tell a login problem apart from a network problem, so the advice matches the cause."""
+    status = getattr(getattr(exc, "response", None), "status_code", None)
+    if status in (401, 403) or type(exc).__name__ == "LocalTokenNotFoundError":
+        return "Not logged in to Hugging Face, or the token was rejected. Run `hf auth login` or set HF_TOKEN."
+    return (
+        f"Could not reach Hugging Face ({type(exc).__name__}: {exc}). "
+        "This is usually a temporary network problem, so try again. Nothing was uploaded."
+    )
+
+
 @dataclass
 class UploadPlan:
     repo_id: str
@@ -157,9 +168,7 @@ def publish(
     try:
         account = api.whoami()
     except Exception as exc:
-        raise PublishError(
-            f"Not logged in to Hugging Face. Run `hf auth login` or set HF_TOKEN. ({type(exc).__name__})"
-        ) from exc
+        raise PublishError(explain_login_check_failure(exc)) from exc
     owners = {account.get("name")} | {org.get("name") for org in account.get("orgs", [])}
     owner = repo_id.split("/")[0]
     if owner not in owners:

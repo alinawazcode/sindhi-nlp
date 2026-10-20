@@ -2,6 +2,7 @@
 
 import json
 import sys
+import types
 
 import pytest
 
@@ -17,15 +18,27 @@ from sindhi_nlp.cli.publish_model import (
 CARD = "# Sindhi sentiment classifier\n\nA model card.\n"
 
 
+class Rejected(Exception):
+    """Looks like huggingface_hub's HTTP error for a rejected token."""
+
+    response = types.SimpleNamespace(status_code=401)
+
+
+class LocalTokenNotFoundError(Exception):
+    """Same name as huggingface_hub's error for "no token saved on this computer"."""
+
+
 class FakeApi:
-    def __init__(self, name="alinawazmahar", orgs=(), logged_in=True):
-        self.name, self.orgs, self.logged_in = name, orgs, logged_in
+    def __init__(self, name="alinawazmahar", orgs=(), logged_in=True, error=None):
+        self.name, self.orgs, self.logged_in, self.error = name, orgs, logged_in, error
         self.calls = []
         self.uploaded = None
 
     def whoami(self):
+        if self.error is not None:
+            raise self.error
         if not self.logged_in:
-            raise RuntimeError("401")
+            raise Rejected()
         return {"name": self.name, "orgs": [{"name": org} for org in self.orgs]}
 
     def create_repo(self, **kwargs):
@@ -245,3 +258,20 @@ def test_cli_reports_problems(model_dir, card, tmp_path, capsys):
     (model_dir / "model.safetensors").unlink()
     assert main(["--model-dir", str(model_dir), "--model-card", str(card), "--project-root", str(tmp_path)]) == 1
     assert "model.safetensors" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("error", [Rejected(), LocalTokenNotFoundError("no token")])
+def test_login_problems_say_so(model_dir, card, error):
+    with pytest.raises(PublishError, match="Not logged in.*hf auth login"):
+        publish(model_dir, DEFAULT_REPO_ID, card, upload=True, api=FakeApi(error=error))
+
+
+@pytest.mark.parametrize("error", [ConnectionError("connection reset"), TimeoutError("timed out")])
+def test_network_problems_are_not_blamed_on_the_login(model_dir, card, error):
+    api = FakeApi(error=error)
+    with pytest.raises(PublishError) as caught:
+        publish(model_dir, DEFAULT_REPO_ID, card, upload=True, api=api)
+    message = str(caught.value)
+    assert "Could not reach Hugging Face" in message and "try again" in message
+    assert "Not logged in" not in message and type(error).__name__ in message
+    assert api.calls == []  # nothing was created or uploaded

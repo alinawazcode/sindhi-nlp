@@ -162,7 +162,7 @@ The code and the trained model weights are released under the MIT License (see [
   title   = {sindhi-nlp: Sentiment classification for Sindhi text},
   year    = {2026},
   url     = {https://github.com/alinawazcode/sindhi-nlp},
-  version = {0.1.0}
+  version = {0.1.1}
 }
 ```
 
