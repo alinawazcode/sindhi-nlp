@@ -100,7 +100,7 @@ result = predictor.predict("اڄ جو ڏينهن تمام سٺو آهي")
 print(result.label, result.confidence, result.probabilities)
 ```
 
-The probabilities are overconfident (see Limitations), so use them as a ranking score rather than as calibrated probabilities. Install the package from the project repository (`pip install -e ".[transformers]"`).
+The probabilities are overconfident (see Limitations), so use them as a ranking score rather than as calibrated probabilities. Install the package with `pip install "sindhi-nlp[transformers]"`.
 
 ## Files in this repository
 

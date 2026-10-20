@@ -28,11 +28,18 @@ Per-class scores, confusion matrices, and the paired comparison are written to `
 Requires Python 3.11 or newer.
 
 ```bash
+pip install "sindhi-nlp[transformers]"    # SDK, CLI, and the XLM-R model
+pip install "sindhi-nlp[api]"             # add the HTTP API
+```
+
+The first time you use the published model it downloads about 1.1 GB, which takes a few minutes on a slow connection. It is cached afterwards.
+
+To work on the code, clone the repository and install it in editable mode with the test tools:
+
+```bash
 git clone https://github.com/alinawazcode/sindhi-nlp.git
 cd sindhi-nlp
-pip install -e ".[transformers]"      # SDK, CLI, and the XLM-R model
-pip install -e ".[api]"               # add the HTTP API
-pip install -e ".[dev]"               # add tests, linting, type checking
+pip install -e ".[transformers,api,dev]"
 ```
 
 Model weights are not stored in Git. The trained XLM-R model is published on Hugging Face as [`alinawazmahar/sindhi-sentiment-xlmr`](https://huggingface.co/alinawazmahar/sindhi-sentiment-xlmr) and is downloaded and cached automatically the first time you use that name. You can also point at a local model folder (for example `artifacts/models/xlmr_mixed`) or train your own with the steps in [Reproduce the results](#reproduce-the-results).
@@ -70,13 +77,13 @@ sindhi-nlp info --model-dir artifacts/models/xlmr_mixed
 uvicorn sindhi_nlp.api.main:app --host 127.0.0.1 --port 8000
 ```
 
-The model named in `configs/inference.yaml` is loaded at startup. Open <http://127.0.0.1:8000/docs> for interactive documentation, or see [docs/api.md](docs/api.md) for endpoints, error formats, and examples.
+The model named in `configs/inference.yaml` is loaded at startup. Open <http://127.0.0.1:8000/docs> for interactive documentation, or see [docs/api.md](https://github.com/alinawazcode/sindhi-nlp/blob/main/docs/api.md) for endpoints, error formats, and examples.
 
 > **About `confidence`.** XLM-R's probabilities are overconfident: wrong predictions can also come back near 1.0. Treat the value as a ranking score, not a calibrated probability.
 
 ## Data
 
-Two datasets are used. Details are in [docs/dataset.md](docs/dataset.md).
+Two datasets are used. Details are in [docs/dataset.md](https://github.com/alinawazcode/sindhi-nlp/blob/main/docs/dataset.md).
 
 - **Human-labeled dataset (4,420 sentences).** Collected from Awaz and other articles and newspapers and labeled by one annotator. Used for all reported results. It is published separately on Kaggle: <https://www.kaggle.com/datasets/alinawaz06/sindhi-sentiment-analysis-dataset>. The sentences come from published sources, so check the dataset page for its terms before reusing it.
 - **Synthetic dataset (150,000 sentences).** Machine-generated from sentence templates with a vocabulary of about 2,400 words. It is useful for testing the pipeline but is not representative of real Sindhi. It is not included in this repository.
@@ -104,7 +111,7 @@ python -m sindhi_nlp.evaluation.evaluate_external --model-dir artifacts/models/x
 python -m sindhi_nlp.evaluation.compare_models --a baseline_natural --b xlmr_mixed --split test
 ```
 
-Every run is seeded (42) and writes its configuration, metrics, and data hashes next to the model, so results can be checked later. See [docs/architecture.md](docs/architecture.md) for how the pieces fit together.
+Every run is seeded (42) and writes its configuration, metrics, and data hashes next to the model, so results can be checked later. See [docs/architecture.md](https://github.com/alinawazcode/sindhi-nlp/blob/main/docs/architecture.md) for how the pieces fit together.
 
 ## Project layout
 
@@ -118,7 +125,7 @@ src/sindhi_nlp/
   api/         FastAPI service
   cli/         the sindhi-nlp command
   utils/       config, logging, seeding
-tests/        pytest suite (162 tests)
+tests/        pytest suite
 docs/         API, architecture, dataset, and model card
 ```
 
@@ -130,7 +137,7 @@ docs/         API, architecture, dataset, and model card
 - **Overconfident probabilities** for the XLM-R model, as noted above.
 - **Not for decisions about people** (employment, credit, moderation, legal outcomes) without human review.
 
-See [docs/model_card.md](docs/model_card.md) for the full model card.
+See [docs/model_card.md](https://github.com/alinawazcode/sindhi-nlp/blob/main/docs/model_card.md) for the full model card.
 
 ## Development
 
@@ -145,7 +152,7 @@ The same checks run on every push through GitHub Actions.
 
 ## License
 
-The code and the trained model weights are released under the MIT License (see [LICENSE](LICENSE)). The human-labeled dataset is distributed separately under its own terms.
+The code and the trained model weights are released under the MIT License (see [LICENSE](https://github.com/alinawazcode/sindhi-nlp/blob/main/LICENSE)). The human-labeled dataset is distributed separately under its own terms.
 
 ## Citation
 
@@ -160,5 +167,5 @@ The code and the trained model weights are released under the MIT License (see [
 ```
 
 ## Author
- 
+
 Ali Nawaz, alinawaz.code@gmail.com
