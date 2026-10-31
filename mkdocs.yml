@@ -60,6 +60,7 @@ nav:
   - Getting started:
       - Installation: installation.md
       - Quickstart: quickstart.md
+      - Examples: examples.md
   - User guide:
       - Python SDK: guide/python-sdk.md
       - Command line: guide/cli.md
