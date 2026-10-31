@@ -1,0 +1,29 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: sindhi-nlp version
+      description: Output of `sindhi-nlp --version`
+    validations: {required: true}
+  - type: input
+    id: env
+    attributes:
+      label: Python version and operating system
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes:
+      label: What did you run, and what did you expect?
+    validations: {required: true}
+  - type: textarea
+    id: error
+    attributes:
+      label: Full error message or output
+      render: text
+    validations: {required: true}
+  - type: markdown
+    attributes:
+      value: Please do not paste private data or tokens.

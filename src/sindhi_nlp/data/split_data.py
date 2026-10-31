@@ -105,6 +105,7 @@ def make_group_key_fn(grouping_cfg: Mapping[str, Any]) -> Callable[[str], str]:
         raise ConfigError("data.grouping is enabled but has no normalizers and ignore_punctuation_digits is false")
 
     def key_fn(text: str) -> str:
+        """Build the group key of one text by applying the configured normalizers in order."""
         for pattern, replacement in rules:
             text = pattern.sub(replacement, text)
         if ignore_noise:
@@ -193,22 +194,26 @@ def text_overlap(splits: Mapping[str, pd.DataFrame], text_col: str = "Text") -> 
 
 
 def assert_disjoint(splits: Mapping[str, pd.DataFrame], text_col: str = "Text") -> None:
+    """Raise if any identical text appears in more than one split (a leak)."""
     shared = {pair: n for pair, n in text_overlap(splits, text_col).items() if n}
     if shared:
         raise DataValidationError(f"Splits share identical texts: {shared}")
 
 
 def count_labels(df: pd.DataFrame, labels: list[str], label_col: str = "Label") -> dict[str, int]:
+    """Count rows per label, including labels with zero rows."""
     counts = df[label_col].value_counts()
     return {label: int(counts.get(label, 0)) for label in labels}
 
 
 def write_csv(df: pd.DataFrame, path: Path) -> None:
+    """Write a frame as UTF-8 CSV with Unix line endings, so output files are byte-identical across platforms."""
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False, encoding="utf-8", lineterminator="\n")
 
 
 def write_json(obj: Any, path: Path) -> None:
+    """Write JSON with sorted keys and Unix line endings, so reports are byte-identical across runs."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2, ensure_ascii=False, sort_keys=True)
@@ -332,6 +337,7 @@ def run_pipeline(config_path: str | Path, project_root: str | Path = ".") -> dic
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Command-line entry point: rebuild train, validation and test files from ``data/raw/``."""
     parser = argparse.ArgumentParser(description="Rebuild train/validation/test splits from raw data.")
     parser.add_argument("--config", default="configs/base.yaml", help="Path to base.yaml")
     parser.add_argument("--project-root", default=".", help="Directory that data/ paths are relative to")

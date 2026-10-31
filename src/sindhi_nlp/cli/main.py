@@ -18,6 +18,7 @@ from typing import Any
 
 import pandas as pd
 
+from .. import __version__
 from ..data.clean_data import CleaningOptions
 from ..data.load_data import read_csv
 from ..inference.predictor import SentimentPredictor
@@ -40,7 +41,9 @@ def _add_model_options(parser: argparse.ArgumentParser) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the ``argparse`` parser with the ``predict``, ``batch``, ``info`` and ``finalize-model`` commands."""
     parser = argparse.ArgumentParser(prog="sindhi-nlp", description="Sindhi sentiment classification")
+    parser.add_argument("--version", action="version", version=f"sindhi-nlp {__version__}")
     parser.add_argument("--log-level", default="WARNING")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -98,6 +101,7 @@ def load_predictor(args: argparse.Namespace) -> SentimentPredictor:
 
 
 def cmd_predict(args: argparse.Namespace) -> int:
+    """``predict``: classify the texts given on the command line and print a table or JSON."""
     predictor = load_predictor(args)
     results = predictor.predict_batch(args.texts, errors="none")
     if args.json:
@@ -114,6 +118,7 @@ def cmd_predict(args: argparse.Namespace) -> int:
 
 
 def read_batch_input(path: Path, text_column: str) -> pd.DataFrame:
+    """Read the texts of a batch run from a CSV column or from a plain text file with one sentence per line."""
     if not path.is_file():
         raise FileNotFoundError(f"Input file not found: {path}")
     if path.suffix.lower() == ".csv":
@@ -128,6 +133,7 @@ def read_batch_input(path: Path, text_column: str) -> pd.DataFrame:
 
 
 def cmd_batch(args: argparse.Namespace) -> int:
+    """``batch``: classify every row of a file and write the results to a CSV."""
     predictor = load_predictor(args)
     df = read_batch_input(Path(args.project_root).resolve() / args.input, args.text_column)
     results = predictor.predict_batch(df[args.text_column].tolist(), errors="none")
@@ -150,6 +156,7 @@ def cmd_batch(args: argparse.Namespace) -> int:
 
 
 def cmd_info(args: argparse.Namespace) -> int:
+    """``info``: print the details of a model."""
     info = load_predictor(args).info
     if args.json:
         print(json.dumps(info.to_dict(), ensure_ascii=False, indent=2))
@@ -160,6 +167,7 @@ def cmd_info(args: argparse.Namespace) -> int:
 
 
 def cmd_finalize(args: argparse.Namespace) -> int:
+    """``finalize-model``: save the cleaning settings next to a model so inference reproduces training."""
     cfg = load_config(args.base_config)
     options = CleaningOptions.from_config((cfg.get("data") or {}).get("cleaning"))
     model_dir = Path(args.model_dir)
@@ -174,6 +182,7 @@ COMMANDS = {"predict": cmd_predict, "batch": cmd_batch, "info": cmd_info, "final
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the command line and return the process exit code (0 on success, 1 on a handled error)."""
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:

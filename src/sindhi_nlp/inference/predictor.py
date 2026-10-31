@@ -120,6 +120,7 @@ def _load_transformers_backend(model_dir: Path, device: str, max_length: int) ->
         )
 
     def score_fn(texts: list[str]) -> np.ndarray:
+        """Return one row of raw scores per text."""
         batch = tokenizer(texts, truncation=True, max_length=max_length, padding=True, return_tensors="pt").to(resolved)
         with torch.no_grad():
             logits = model(**batch).logits
@@ -233,10 +234,12 @@ class SentimentPredictor:
 
     @property
     def info(self) -> ModelInfo:
+        """Details of the loaded model: name, backend, labels, device, token limit and seed."""
         return self._info
 
     @property
     def labels(self) -> tuple[str, ...]:
+        """The class names in the order the model uses them."""
         return self._info.labels
 
     # --------------------------------------------------------------- prediction

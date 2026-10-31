@@ -71,6 +71,8 @@ def explain_login_check_failure(exc: Exception) -> str:
 
 @dataclass
 class UploadPlan:
+    """The files that will be uploaded to a Hugging Face model repository, and the repository they go to."""
+
     repo_id: str
     files: list[Path] = field(default_factory=list)
     left_out: list[str] = field(default_factory=list)
@@ -78,6 +80,7 @@ class UploadPlan:
 
     @property
     def total_bytes(self) -> int:
+        """Total size of all files in the plan."""
         return sum(path.stat().st_size for path in self.files)
 
 
@@ -101,6 +104,7 @@ def find_local_paths(files: list[Path], readme: str) -> dict[str, list[str]]:
 
 
 def plan_upload(model_dir: Path, model_card_path: Path, repo_id: str) -> UploadPlan:
+    """Decide which files to publish: weights, tokenizer, configs and metrics, never pickle files or paths from your machine."""
     if not REPO_ID.match(repo_id):
         raise PublishError(f"The repository name must look like owner/name, got {repo_id!r}")
     if not model_dir.is_dir():
@@ -121,6 +125,7 @@ def plan_upload(model_dir: Path, model_card_path: Path, repo_id: str) -> UploadP
 
 
 def describe(plan: UploadPlan) -> str:
+    """Describe an upload plan in plain text, for the dry run."""
     lines = [f"Repository: {plan.repo_id}", "Files to upload:"]
     for path in plan.files:
         lines.append(f"  {path.name:<26} {path.stat().st_size / 1e6:>9.2f} MB")
@@ -196,6 +201,7 @@ def publish(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the publishing tool. It is a dry run unless ``--upload`` is given."""
     parser = argparse.ArgumentParser(
         description="Publish a trained model to the Hugging Face Hub (dry run by default)."
     )

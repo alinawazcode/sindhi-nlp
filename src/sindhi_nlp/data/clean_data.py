@@ -27,6 +27,8 @@ _UNICODE_FORMS = {"NFC", "NFD", "NFKC", "NFKD"}
 
 @dataclass(frozen=True)
 class CleaningOptions:
+    """Switches for text normalization. The same options must be used in training and at prediction time."""
+
     unicode_form: str | None = "NFKC"
     remove_invisible: bool = True
     remove_zwnj: bool = False
@@ -58,6 +60,7 @@ class CleaningOptions:
 
     @classmethod
     def from_config(cls, config: Mapping[str, Any] | None) -> "CleaningOptions":
+        """Build options from the ``data.cleaning`` section of a config (missing keys use the defaults)."""
         config = dict(config or {})
         known = {"unicode_form", "remove_invisible", "remove_zwnj", "remove_tatweel", "strip_diacritics", "char_map"}
         unknown = set(config) - known
@@ -66,6 +69,7 @@ class CleaningOptions:
         return cls(**config)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the options as a plain dictionary, for saving next to a model."""
         return {
             "unicode_form": self.unicode_form,
             "remove_invisible": self.remove_invisible,
@@ -97,4 +101,5 @@ def clean_text(text: Any, options: CleaningOptions = DEFAULT_OPTIONS) -> str:
 
 
 def clean_series(series: pd.Series, options: CleaningOptions = DEFAULT_OPTIONS) -> pd.Series:
+    """Apply :func:`clean_text` to every element of a pandas Series."""
     return series.map(lambda value: clean_text(value, options)).astype(object)

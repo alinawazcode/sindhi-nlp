@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software or the model, please cite it as below."
+title: "sindhi-nlp: Sentiment classification for Sindhi text"
+type: software
+authors:
+  - family-names: Nawaz
+    given-names: Ali
+    email: alinawaz.code@gmail.com
+version: 0.1.1
+date-released: 2026-10-20
+license: MIT
+repository-code: "https://github.com/alinawazcode/sindhi-nlp"
+url: "https://alinawazcode.github.io/sindhi-nlp/"
+keywords: [sindhi, nlp, sentiment-analysis, xlm-roberta]
+# Add after your first Zenodo release:
+# doi: 10.5281/zenodo.XXXXXXX

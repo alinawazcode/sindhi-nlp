@@ -20,6 +20,8 @@ DEFAULT_MAX_CHARS = 10_000
 
 
 class TextPreprocessor:
+    """Validate and clean text before it reaches the model, with the same rules used in training."""
+
     def __init__(
         self,
         options: CleaningOptions | None = None,
@@ -34,6 +36,7 @@ class TextPreprocessor:
 
     @classmethod
     def from_model_dir(cls, model_dir: str | Path, max_chars: int = DEFAULT_MAX_CHARS) -> "TextPreprocessor":
+        """Create a preprocessor from the ``preprocessing.json`` saved next to a model (defaults if absent)."""
         path = Path(model_dir) / PREPROCESSING_FILE
         if not path.is_file():
             return cls(max_chars=max_chars, source="defaults (no preprocessing.json found)")

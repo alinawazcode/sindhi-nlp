@@ -9,6 +9,7 @@ _FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 
 
 def setup_logging(level: str | int = "INFO") -> None:
+    """Send log messages to stderr at the given level. Calling it again does not add a second handler."""
     root = logging.getLogger()
     if not any(getattr(h, "_sindhi_nlp", False) for h in root.handlers):
         handler = logging.StreamHandler(sys.stderr)
@@ -19,4 +20,5 @@ def setup_logging(level: str | int = "INFO") -> None:
 
 
 def get_logger(name: str) -> logging.Logger:
+    """Return a named logger for a module."""
     return logging.getLogger(name)

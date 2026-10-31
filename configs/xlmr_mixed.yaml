@@ -1,0 +1,41 @@
+# Reproduces the published model alinawazmahar/sindhi-sentiment-xlmr (run name xlmr_mixed).
+# Settings are copied from the training_config.json saved with that run.
+# Paths are relative to the project root.
+model_name: xlm-roberta-base
+run_name: xlmr_mixed           # output folder: artifacts/models/xlmr_mixed
+
+datasets:
+  synthetic: data/processed
+  natural: data/external/processed
+
+train_on: [synthetic, natural]
+validate_on: [natural]         # checkpoint chosen by macro-F1 on the natural validation split
+report_on: [synthetic]         # reported, never used to choose a checkpoint
+
+max_rows:
+  synthetic: 30000             # stratified sample of the synthetic training split
+repeat:
+  natural: 5                   # the human-labeled training split is repeated 5 times
+
+tokenizer:
+  max_length: 128
+
+training:
+  learning_rate: 2.0e-5
+  per_device_train_batch_size: 32
+  per_device_eval_batch_size: 64
+  gradient_accumulation_steps: 1
+  num_train_epochs: 3          # the published run used 3 (configs/xlm_roberta_base.yaml defaults to 4)
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  early_stopping_patience: 2
+  save_total_limit: 2
+  logging_steps: 50
+  dataloader_num_workers: 0
+  fp16: auto
+
+smoke:
+  train_rows: 240
+  validation_rows: 90
+  epochs: 1
+  batch_size: 8

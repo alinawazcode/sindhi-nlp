@@ -36,16 +36,32 @@ Run a single worker. Each extra worker process loads its own copy of the model.
   "model_loaded": true,
   "model": "xlmr_mixed",
   "backend": "transformers",
-  "package_version": "0.1.0",
+  "package_version": "0.1.1",
   "detail": null
 }
 ```
+
+This is real output from a local run on a Windows CPU.
 
 Returns **503** with `"status": "unavailable"` if the model failed to load. The server stays up so you can see why; the details are in the server log.
 
 ### `GET /model`
 
-Labels, backend, device, token limit, and which preprocessing settings are in use.
+Labels, backend, device, token limit, and which preprocessing settings are in use. Real output:
+
+```json
+{
+  "name": "xlmr_mixed",
+  "backend": "transformers",
+  "labels": ["negative", "neutral", "positive"],
+  "confidence_type": "probability",
+  "device": "cpu",
+  "max_length": 128,
+  "preprocessing_source": "preprocessing.json",
+  "seed": 42,
+  "base_model": "xlm-roberta-base"
+}
+```
 
 ### `POST /predict`
 

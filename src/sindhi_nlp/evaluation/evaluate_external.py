@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -77,6 +78,7 @@ def evaluate_model(
     overwrite: bool = False,
     max_error_examples: int = 200,
 ) -> dict[str, Any]:
+    """Score a saved model on one split of the natural-text data and save the metrics and mistakes."""
     root = Path(project_root).resolve()
     model_dir, data_path = root / Path(model_dir), root / Path(data_path)
     model_name = model_dir.name
@@ -145,6 +147,7 @@ def evaluate_model(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Command-line entry point. Scoring the test split needs ``--final`` and works once per model."""
     parser = argparse.ArgumentParser(description="Evaluate a saved model on a labeled CSV.")
     parser.add_argument("--model-dir", default="artifacts/models/baseline_tfidf_linearsvc")
     parser.add_argument("--split", choices=["train", "validation", "test"], default="validation")
@@ -159,9 +162,13 @@ def main(argv: list[str] | None = None) -> int:
 
     setup_logging(args.log_level)
     data = args.data or f"data/external/processed/{args.split}.csv"
-    report = evaluate_model(
-        args.model_dir, data, args.split, args.tag, args.config, args.project_root, args.final, args.overwrite
-    )
+    try:
+        report = evaluate_model(
+            args.model_dir, data, args.split, args.tag, args.config, args.project_root, args.final, args.overwrite
+        )
+    except (FinalEvaluationError, FileNotFoundError, ValueError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
     m = report["metrics"]
     print(f"{report['model']} on {args.tag}/{args.split} ({m['num_examples']:,} rows)")
     print(f"  macro-F1 {m['macro_f1']:.4f}   accuracy {m['accuracy']:.4f}")

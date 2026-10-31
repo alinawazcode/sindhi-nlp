@@ -15,12 +15,14 @@ class DataValidationError(ValueError):
 
 
 def validate_schema(df: pd.DataFrame, text_col: str = "Text", label_col: str = "Label") -> None:
+    """Raise ``DataValidationError`` unless the frame has the text and label columns."""
     missing = [c for c in (text_col, label_col) if c not in df.columns]
     if missing:
         raise DataValidationError(f"Missing required column(s) {missing}; found {list(df.columns)}")
 
 
 def build_label_lookup(labels: Sequence[str], aliases: Mapping[str, str] | None = None) -> dict[str, str]:
+    """Map every accepted spelling of a label (case-insensitive, plus aliases) to its canonical name."""
     lookup = {label.strip().lower(): label for label in labels}
     for alias, target in (aliases or {}).items():
         if target not in labels:
@@ -30,6 +32,7 @@ def build_label_lookup(labels: Sequence[str], aliases: Mapping[str, str] | None 
 
 
 def normalize_label(value: Any, lookup: Mapping[str, str]) -> str | None:
+    """Return the canonical label for a raw value, or ``None`` if it is not a valid label."""
     if not isinstance(value, str):
         return None
     return lookup.get(value.strip().lower())
@@ -42,6 +45,7 @@ def normalize_labels(series: pd.Series, labels: Sequence[str], aliases: Mapping[
 
 
 def duplicate_stats(df: pd.DataFrame, text_col: str = "Text", label_col: str = "Label") -> dict[str, int]:
+    """Count duplicate texts and texts that appear with conflicting labels."""
     if df.empty:
         return {"duplicate_rows": 0, "duplicate_texts": 0, "conflicting_texts": 0}
     labels_per_text = df.groupby(text_col)[label_col].nunique()
@@ -55,6 +59,8 @@ def duplicate_stats(df: pd.DataFrame, text_col: str = "Text", label_col: str = "
 
 @dataclass(frozen=True)
 class ValidationReport:
+    """What validation found: row counts, invalid labels, missing text and duplicates."""
+
     rows: int
     missing_text: int
     invalid_label_rows: int
@@ -65,6 +71,7 @@ class ValidationReport:
     label_counts: dict[str, int]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the report as a plain dictionary for ``split_report.json``."""
         return asdict(self)
 
 

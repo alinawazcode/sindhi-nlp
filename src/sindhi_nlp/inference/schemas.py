@@ -35,11 +35,14 @@ class Prediction:
     is_confident: bool = True
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the prediction as a plain dictionary, ready for JSON."""
         return asdict(self)
 
 
 @dataclass(frozen=True)
 class ModelInfo:
+    """Details of a loaded model."""
+
     name: str
     backend: str  # "sklearn" or "transformers"
     model_dir: str
@@ -52,6 +55,7 @@ class ModelInfo:
     base_model: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the details as a plain dictionary, ready for JSON."""
         data = asdict(self)
         data["labels"] = list(self.labels)
         return data

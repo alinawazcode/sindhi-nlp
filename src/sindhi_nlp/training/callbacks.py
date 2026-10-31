@@ -30,14 +30,17 @@ class JsonlLogCallback(TrainerCallback):
             handle.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
 
     def on_log(self, args, state, control, logs=None, **kwargs):
+        """Append each training log entry to the JSONL log file."""
         if logs:
             self._write({"event": "log", "step": state.global_step, "epoch": state.epoch, **logs})
 
     def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+        """Append each evaluation result to the JSONL log file."""
         if metrics:
             self._write({"event": "evaluate", "step": state.global_step, "epoch": state.epoch, **metrics})
 
     def on_train_end(self, args, state, control, **kwargs):
+        """Write the final training state to the JSONL log file."""
         self._write(
             {
                 "event": "train_end",
@@ -49,6 +52,7 @@ class JsonlLogCallback(TrainerCallback):
 
 
 def build_callbacks(early_stopping_patience: int, log_path: str | Path) -> list[Any]:
+    """Create the training callbacks: a metric log and early stopping on validation macro-F1."""
     callbacks: list[Any] = [JsonlLogCallback(log_path)]
     if early_stopping_patience and early_stopping_patience > 0:
         callbacks.append(EarlyStoppingCallback(early_stopping_patience=int(early_stopping_patience)))

@@ -34,6 +34,7 @@ class ConfigError(ValueError):
 
 
 def load_yaml(path: str | Path) -> dict[str, Any]:
+    """Read a YAML file into a dictionary. Raises ``ConfigError`` if the file is missing, malformed or not a mapping."""
     path = Path(path)
     if not path.is_file():
         raise ConfigError(f"Config file not found: {path}")
@@ -61,6 +62,7 @@ def merge_configs(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[
 
 
 def get_nested(config: Mapping[str, Any], dotted_key: str, default: Any = ...) -> Any:
+    """Read a value with a dotted key such as ``"data.cleaning.normalize_digits"``. Without a default, a missing key raises ``ConfigError``."""
     node: Any = config
     for part in dotted_key.split("."):
         if isinstance(node, Mapping) and part in node:
@@ -73,18 +75,21 @@ def get_nested(config: Mapping[str, Any], dotted_key: str, default: Any = ...) -
 
 
 def require_keys(config: Mapping[str, Any], keys: Iterable[str]) -> None:
+    """Raise ``ConfigError`` naming every dotted key in ``keys`` that is missing from the config."""
     missing = [key for key in keys if get_nested(config, key, default=None) is None]
     if missing:
         raise ConfigError(f"Missing required config key(s): {', '.join(missing)}")
 
 
 def load_config(path: str | Path, required: Iterable[str] = ()) -> dict[str, Any]:
+    """Load a YAML config and check that the ``required`` dotted keys are present."""
     config = load_yaml(path)
     require_keys(config, required)
     return config
 
 
 def validate_base_config(config: Mapping[str, Any]) -> None:
+    """Raise ``ConfigError`` if the shared settings (seed, labels, ratios) hold invalid values."""
     seed = config["seed"]
     if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
         raise ConfigError(f"seed must be a non-negative integer, got {seed!r}")
@@ -118,6 +123,7 @@ def validate_base_config(config: Mapping[str, Any]) -> None:
 
 
 def load_base_config(path: str | Path) -> dict[str, Any]:
+    """Load ``configs/base.yaml`` and validate it."""
     config = load_config(path, required=REQUIRED_BASE_KEYS)
     validate_base_config(config)
     return config

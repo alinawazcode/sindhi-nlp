@@ -1,10 +1,16 @@
 # sindhi-nlp
 
 [![tests](https://github.com/alinawazcode/sindhi-nlp/actions/workflows/tests.yml/badge.svg)](https://github.com/alinawazcode/sindhi-nlp/actions/workflows/tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/sindhi-nlp)](https://pypi.org/project/sindhi-nlp/)
+[![Python](https://img.shields.io/pypi/pyversions/sindhi-nlp)](https://pypi.org/project/sindhi-nlp/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/alinawazcode/sindhi-nlp/blob/main/LICENSE)
+[![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97-model-yellow)](https://huggingface.co/alinawazmahar/sindhi-sentiment-xlmr)
+
+**Documentation: <https://alinawazcode.github.io/sindhi-nlp/>**
 
 Sentiment classification for Sindhi text. Given a Sindhi sentence, it returns `negative`, `neutral`, or `positive` with class probabilities.
 
-The repository contains a reproducible training pipeline, a fine-tuned XLM-RoBERTa model, a lightweight TF-IDF baseline, a Python SDK, a command-line tool, and an HTTP API.
+The project contains a reproducible training pipeline, a fine-tuned XLM-RoBERTa model, a lightweight TF-IDF baseline, a Python SDK, a command-line tool, and an HTTP API.
 
 > **Read this before trusting the numbers.** The project began with a 150,000-sentence synthetic dataset on which every model scores 0.9998. That figure says nothing about real Sindhi: the same baseline scores 0.60 on human-written sentences. All headline results below come from a separate human-labeled dataset. See [Data](#data) and [Limitations](#limitations).
 
@@ -30,7 +36,10 @@ Requires Python 3.11 or newer.
 ```bash
 pip install "sindhi-nlp[transformers]"    # SDK, CLI, and the XLM-R model
 pip install "sindhi-nlp[api]"             # add the HTTP API
+pip install "sindhi-nlp[plots]"           # add confusion-matrix and comparison charts
 ```
+
+The `plots` extra, `sindhi-nlp --version` and the `evaluate` tool below are on `main` and arrive with the next release after 0.1.1; to use them now, install from GitHub: `pip install "sindhi-nlp[plots,transformers] @ git+https://github.com/alinawazcode/sindhi-nlp.git"`.
 
 The first time you use the published model it downloads about 1.1 GB, which takes a few minutes on a slow connection. It is cached afterwards.
 
@@ -61,7 +70,7 @@ print(result.probabilities)  # {'negative': ..., 'neutral': ..., 'positive': ...
 results = predictor.predict_batch(["...", "..."])  # keeps the input order
 ```
 
-Input is cleaned the same way as during training. Empty or non-text input raises `InvalidInputError`, and inputs beyond the model's token limit are truncated.
+Input is cleaned the same way as during training. Empty or non-text input raises `InvalidInputError` (pass `errors="none"` to `predict_batch` to get `None` for bad items instead), and inputs beyond the model's token limit are truncated.
 
 **Command line**
 
@@ -69,6 +78,14 @@ Input is cleaned the same way as during training. Empty or non-text input raises
 sindhi-nlp predict "اڄ جو ڏينهن تمام سٺو آهي" --model-dir alinawazmahar/sindhi-sentiment-xlmr
 sindhi-nlp batch --input texts.csv --output results.csv --model-dir artifacts/models/xlmr_mixed
 sindhi-nlp info --model-dir artifacts/models/xlmr_mixed
+sindhi-nlp --version
+```
+
+**Measure it on your own labeled data**
+
+```bash
+python -m sindhi_nlp.evaluation.evaluate --model-dir alinawazmahar/sindhi-sentiment-xlmr \
+    --csv my_labeled.csv --text-column Text --label-column Label --show-errors 10
 ```
 
 **HTTP API**
@@ -81,11 +98,20 @@ The model named in `configs/inference.yaml` is loaded at startup. Open <http://1
 
 > **About `confidence`.** XLM-R's probabilities are overconfident: wrong predictions can also come back near 1.0. Treat the value as a ranking score, not a calibrated probability.
 
+## Documentation
+
+Full guides live on the [documentation site](https://alinawazcode.github.io/sindhi-nlp/):
+
+- [Installation](https://alinawazcode.github.io/sindhi-nlp/installation/) and [Quickstart](https://alinawazcode.github.io/sindhi-nlp/quickstart/)
+- [Python SDK](https://alinawazcode.github.io/sindhi-nlp/guide/python-sdk/), [Command line](https://alinawazcode.github.io/sindhi-nlp/guide/cli/), [HTTP API](https://alinawazcode.github.io/sindhi-nlp/api/)
+- Tutorials: [classify a CSV](https://alinawazcode.github.io/sindhi-nlp/tutorials/classify-csv/), [evaluate on your own data](https://alinawazcode.github.io/sindhi-nlp/tutorials/evaluate-own-data/), [train on your own data](https://alinawazcode.github.io/sindhi-nlp/tutorials/train-own-data/)
+- [Results](https://alinawazcode.github.io/sindhi-nlp/results/), [model card](https://alinawazcode.github.io/sindhi-nlp/model_card/), [FAQ](https://alinawazcode.github.io/sindhi-nlp/faq/), [roadmap and known gaps](https://alinawazcode.github.io/sindhi-nlp/roadmap/)
+
 ## Data
 
 Two datasets are used. Details are in [docs/dataset.md](https://github.com/alinawazcode/sindhi-nlp/blob/main/docs/dataset.md).
 
-- **Human-labeled dataset (4,420 sentences).** Collected from Awaz and other articles and newspapers and labeled by one annotator. Used for all reported results. It is published separately on Kaggle: <https://www.kaggle.com/datasets/alinawaz06/sindhi-sentiment-analysis-dataset>. The sentences come from published sources, so check the dataset page for its terms before reusing it.
+- **Human-labeled dataset (4,420 sentences).** Collected from Awaz and other articles and newspapers and labeled by one annotator (the author). Used for all reported results. It is published separately on Kaggle under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): <https://www.kaggle.com/datasets/alinawaz06/sindhi-sentiment-analysis-dataset>.
 - **Synthetic dataset (150,000 sentences).** Machine-generated from sentence templates with a vocabulary of about 2,400 words. It is useful for testing the pipeline but is not representative of real Sindhi. It is not included in this repository.
 
 ## Reproduce the results
@@ -102,8 +128,8 @@ python -m sindhi_nlp.training.baseline
 python -m sindhi_nlp.training.baseline --data-dir data/external/processed --model-name baseline_natural
 
 # 3. XLM-RoBERTa (needs a GPU; a free Kaggle T4 works)
-python -m sindhi_nlp.training.train --smoke      # quick check of the whole pipeline
-python -m sindhi_nlp.training.train
+python -m sindhi_nlp.training.train --config configs/xlmr_mixed.yaml --smoke   # quick check of the whole pipeline
+python -m sindhi_nlp.training.train --config configs/xlmr_mixed.yaml           # the published model's settings (3 epochs)
 
 # 4. Evaluate. Validation can be repeated; the test split is a one-time evaluation.
 python -m sindhi_nlp.evaluation.evaluate_external --model-dir artifacts/models/xlmr_mixed --split validation
@@ -126,12 +152,12 @@ src/sindhi_nlp/
   cli/         the sindhi-nlp command
   utils/       config, logging, seeding
 tests/        pytest suite
-docs/         API, architecture, dataset, and model card
+docs/         documentation site (MkDocs): guides, tutorials, reference, results
 ```
 
 ## Limitations
 
-- **One small evaluation set.** 884 test sentences from a single source, labeled by one person. Inter-annotator agreement was not measured, and "neutral" is not formally defined.
+- **One small evaluation set.** 884 test sentences from a single source, labeled by one person. Inter-annotator agreement was not measured, and "neutral" has only a working definition (normal, everyday conversation), not a written guideline.
 - **Short, news-style sentences.** Performance on social media, long documents, code-mixed text, other Sindhi scripts, dialects, or sarcasm is untested.
 - **The synthetic data adds little.** Adding it to training raised validation macro-F1 from 0.866 to 0.887, a gap too small to treat as proven.
 - **Overconfident probabilities** for the XLM-R model, as noted above.
@@ -146,13 +172,16 @@ pytest              # tests
 ruff check .        # lint
 ruff format --check .
 mypy                # type check
+mkdocs serve        # preview the documentation (pip install -e ".[docs]")
 ```
+
+See [CONTRIBUTING.md](https://github.com/alinawazcode/sindhi-nlp/blob/main/CONTRIBUTING.md) before opening a pull request.
 
 The same checks run on every push through GitHub Actions.
 
 ## License
 
-The code and the trained model weights are released under the MIT License (see [LICENSE](https://github.com/alinawazcode/sindhi-nlp/blob/main/LICENSE)). The human-labeled dataset is distributed separately under its own terms.
+The code and the trained model weights are released under the MIT License (see [LICENSE](https://github.com/alinawazcode/sindhi-nlp/blob/main/LICENSE)). The human-labeled dataset is distributed separately under CC BY-SA 4.0.
 
 ## Citation
 
@@ -165,6 +194,8 @@ The code and the trained model weights are released under the MIT License (see [
   version = {0.1.1}
 }
 ```
+
+<!-- DOI: after your first Zenodo release, add `doi = {10.5281/zenodo.XXXXXXX}` to the entry above and a `doi:` line to CITATION.cff -->
 
 ## Author
 

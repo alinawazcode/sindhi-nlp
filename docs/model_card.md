@@ -14,7 +14,7 @@
 | Author | Ali Nawaz |
 | Contact | alinawaz.code@gmail.com |
 | License | Model weights are free to use under the MIT License, the same license as the base model `xlm-roberta-base`. The natural dataset is not included. |
-| Version | 0.1.0 |
+| Version | 0.1.1 |
 
 ## Intended use
 
@@ -30,17 +30,25 @@
 ## Data
 
 **Natural dataset (human-labeled).** 4,420 Sindhi sentences with three labels (1,500 negative, 1,419 neutral, 1,501 positive). Sentences are 2 to 54 words long (mean 13.3) with a vocabulary of 9,060 words. Split with a fixed seed, grouped so near-duplicates stay together: 3,094 train, 442 validation, 884 test (locked until the final evaluation).
-Source and labeling: the sentences were collected from Awaz and other articles and newspapers, and labeled by a single human annotator. No second annotator reviewed the labels, so agreement between annotators was not measured. A formal definition of the neutral class is not documented here. The dataset is available separately on Kaggle: https://www.kaggle.com/datasets/alinawaz06/sindhi-sentiment-analysis-dataset (check the dataset page for its terms, since the text comes from published sources).
+Source and labeling: the sentences were collected from Awaz and other articles and newspapers, and labeled by a single human annotator. No second annotator reviewed the labels, so agreement between annotators was not measured. The author labeled `neutral` for sentences that read as normal, everyday conversation rather than expressing a clearly positive or negative feeling; this is a working definition, not a written guideline. The dataset is available separately on Kaggle under CC BY-SA 4.0: https://www.kaggle.com/datasets/alinawaz06/sindhi-sentiment-analysis-dataset
 
 **Synthetic dataset.** 150,000 machine-generated sentences (50,000 per class), split 120,000 / 15,000 / 15,000 with duplicates and weekday variants of the same sentence kept within one split. The text is built from sentence templates with a small vocabulary (about 2,400 words in the training split). It is useful for testing the pipeline but **not representative of real Sindhi**: a baseline trained on it scores 0.9998 on its own validation set and only 0.6002 on the natural validation set.
 
 ## Training procedure (`xlmr_mixed`)
 
-- Training data: up to 30,000 synthetic training sentences plus the natural training split repeated 5 times.
-- Texts that also appear in a validation set were removed from training.
+- Training data: 45,470 sentences: 30,000 synthetic training sentences plus the natural training split (3,094 sentences) repeated 5 times. Class counts: 15,250 negative, 14,965 neutral, 15,255 positive.
+- Texts that also appear in a validation set were removed from training (none needed removing in this run).
 - Learning rate 2e-5, batch size 32, up to 3 epochs, warmup ratio 0.1, weight decay 0.01, max length 128, mixed precision (fp16).
-- Checkpoint chosen by macro-F1 on the natural validation set (best epoch: 2).
-- Hardware: one NVIDIA Tesla T4 on Kaggle.
+- Checkpoint chosen by macro-F1 on the natural validation set (best epoch: 2, step 2,842). Early stopping (patience 2) did not trigger; all 3 epochs ran in about 9 minutes (552 s of training).
+
+| Epoch | Validation macro-F1 | Validation accuracy | Validation loss |
+| ---: | ---: | ---: | ---: |
+| 1 | 0.8656 | 0.8665 | 0.595 |
+| **2** | **0.8872** | 0.8869 | 0.820 |
+| 3 | 0.8830 | 0.8824 | 0.872 |
+- Hardware: one NVIDIA Tesla T4 on Kaggle. Software: Python 3.13.15, PyTorch 2.11.0 (CUDA 12.8), Transformers 5.16.1.
+- Token lengths (5,000 sampled training sentences): median 17, 95th percentile 32, 99th percentile 60, maximum 92. None was truncated at the limit of 128.
+- To repeat this run exactly, use `configs/xlmr_mixed.yaml`, which holds these settings.
 - Training time and exact library versions: see `artifacts/models/xlmr_mixed/training_config.json`.
 
 The baseline was trained on the natural training split only, in under one second on CPU.
@@ -65,19 +73,19 @@ Notes:
 ## Limitations and risks
 
 - **Small, narrow evaluation.** One human-labeled set of short sentences. Performance on other domains, longer text, or other authors is unknown.
-- **Label quality is unmeasured.** The labels come from one annotator and were not independently reviewed, so inter-annotator agreement is unknown. Neutral is often the least well-defined class.
+- **Label quality is unmeasured.** The labels come from one annotator and were not independently reviewed, so inter-annotator agreement is unknown. Neutral is defined only by the author's working rule (normal, everyday conversation).
 - **Synthetic data in training.** The mixed model saw templated sentences. The validation gain from adding them (0.8872 vs 0.8663 without) is small and not shown to be significant.
 - **Topic cues.** The baseline's strongest neutral features are topic words (city, market, hospital, budget), which is consistent with news-style sources. Neutral predictions may follow topic instead of sentiment on unfamiliar subjects.
-- **Overfitting signs.** In the mixed run, training loss fell to near zero while validation loss rose after epoch 2.
+- **Overfitting signs.** In the mixed run, training loss fell to near zero (about 0.003 to 0.02 in the last epoch) while validation loss rose at every evaluation (0.595, 0.820, 0.872). Validation macro-F1 peaked at epoch 2 and dipped slightly at epoch 3, which is why the epoch 2 checkpoint was kept.
 - **Language variety.** Behaviour on dialects, spelling variants, and transliterated Sindhi has not been tested.
 
 ## License
 
-The trained model weights in this repository are free to use, including for commercial work, under the MIT License. Please keep the author credit (Ali Nawaz). The base model, `xlm-roberta-base`, is also MIT licensed. The 4,420-sentence human-labeled dataset is **not** part of this model release and is not covered by this license; it is published separately on Kaggle (link above) under its own terms.
+The trained model weights in this repository are free to use, including for commercial work, under the MIT License. Please keep the author credit (Ali Nawaz). The base model, `xlm-roberta-base`, is also MIT licensed. The 4,420-sentence human-labeled dataset is **not** part of this model release and is not covered by this license; it is published separately on Kaggle (link above) under CC BY-SA 4.0.
 
 ## Ethical considerations
 
-Sentiment labels are a coarse and subjective summary of text. Predictions can be wrong, and errors may not be evenly distributed across topics, dialects, or communities. Use human review for anything consequential. The natural dataset contains sentences taken from newspapers and articles, so check its terms before reusing or redistributing it.
+Sentiment labels are a coarse and subjective summary of text. Predictions can be wrong, and errors may not be evenly distributed across topics, dialects, or communities. Use human review for anything consequential. The natural dataset contains sentences taken from newspapers and articles, so consider how that affects your own use. Its CC BY-SA 4.0 license requires attribution and sharing derived datasets under the same license.
 
 ## How to use
 

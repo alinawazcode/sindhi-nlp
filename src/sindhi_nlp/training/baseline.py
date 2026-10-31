@@ -38,6 +38,7 @@ REQUIRED_BASELINE_KEYS = ("model_name", "tfidf.analyzer", "tfidf.ngram_range", "
 
 
 def build_pipeline(baseline_cfg: dict[str, Any], seed: int) -> Pipeline:
+    """Build the TF-IDF + LinearSVC pipeline from the baseline config."""
     tfidf = dict(baseline_cfg["tfidf"])
     tfidf["ngram_range"] = tuple(tfidf["ngram_range"])
     svc = dict(baseline_cfg["svc"])
@@ -100,6 +101,7 @@ def error_analysis(
 
 
 def format_summary(report: dict[str, Any]) -> str:
+    """Render the baseline report as the Markdown summary saved under ``artifacts/reports/``."""
     m = report["validation_metrics"]
     labels = m["labels"]
     lines = [
@@ -246,6 +248,7 @@ def run_baseline(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Command-line entry point of the baseline training."""
     parser = argparse.ArgumentParser(description="Train and validate the TF-IDF + LinearSVC baseline.")
     parser.add_argument("--config", default="configs/base.yaml")
     parser.add_argument("--baseline-config", default="configs/baseline.yaml")
