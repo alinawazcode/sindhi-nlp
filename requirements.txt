@@ -17,7 +17,7 @@ accelerate==1.15.0
 
 # --- HTTP API ---
 fastapi==0.141.1
-uvicorn==0.53.0
+uvicorn==0.54.0
 pydantic==2.13.4
 
 # --- tests, linting, type checking ---
