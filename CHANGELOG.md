@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 - 2026-10-31
 
 ### Added
 
@@ -12,6 +12,11 @@
 - Optional extras `plots` and `docs`.
 - Docstrings on every public function and class.
 - `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, issue and pull-request templates, Dependabot, docs-deploy and PyPI release workflows.
+
+### Fixed
+
+- `sindhi-nlp finalize-model` failed after a plain `pip install` because `configs/base.yaml` is not installed. It now falls back to the built-in cleaning defaults (identical to `configs/base.yaml`) and says so in `preprocessing.json`.
+- A missing `configs/...` file now produces an error that explains the folder is part of the GitHub repository and is not installed by pip.
 
 ### Changed
 

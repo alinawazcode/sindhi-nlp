@@ -3,7 +3,7 @@
 services:
   api:
     build: .
-    image: sindhi-nlp-api:0.1.1
+    image: sindhi-nlp-api:0.1.2
     ports:
       - "8000:8000"
     environment:

@@ -37,7 +37,13 @@ def load_yaml(path: str | Path) -> dict[str, Any]:
     """Read a YAML file into a dictionary. Raises ``ConfigError`` if the file is missing, malformed or not a mapping."""
     path = Path(path)
     if not path.is_file():
-        raise ConfigError(f"Config file not found: {path}")
+        hint = ""
+        if not path.is_absolute() and path.parts[:1] == ("configs",):
+            hint = (
+                " (the configs/ folder is part of the GitHub repository and is not installed by pip;"
+                " clone https://github.com/alinawazcode/sindhi-nlp or pass the path of your own config)"
+            )
+        raise ConfigError(f"Config file not found: {path}{hint}")
     with path.open(encoding="utf-8") as handle:
         try:
             data = yaml.safe_load(handle)

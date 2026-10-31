@@ -1,9 +1,5 @@
 # Evaluate on your own data
 
-!!! info "Not in the 0.1.1 release on PyPI"
-    The `evaluate` command and the plots used here were added after 0.1.1. Until the next release, install from GitHub: `pip install "sindhi-nlp[plots,transformers] @ git+https://github.com/alinawazcode/sindhi-nlp.git"`, or clone the repository and run `pip install -e .`. See [Which version has what](../installation.md#which-version-has-what).
-
-
 A published score describes someone else's sentences. Before relying on a model, label a few hundred sentences from your own source and measure.
 
 ## 1. Build a labeled file

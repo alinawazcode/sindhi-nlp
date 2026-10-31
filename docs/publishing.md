@@ -82,4 +82,4 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-If a release has a mistake, do not try to replace it: fix the problem and publish the next version number (0.1.1), updating `__version__` in `src/sindhi_nlp/__init__.py`.
+If a release has a mistake, do not try to replace it: fix the problem and publish the next version number (for example 0.1.3), updating `__version__` in `src/sindhi_nlp/__init__.py`.

@@ -1,9 +1,5 @@
 # Evaluation tools
 
-!!! info "Not in the 0.1.1 release on PyPI"
-    The `evaluate` tool, the error-analysis helpers and the plotting functions were added after 0.1.1. `evaluate_external` and `compare_models` are in 0.1.1. Until the next release, install from GitHub: `pip install "sindhi-nlp[plots,transformers] @ git+https://github.com/alinawazcode/sindhi-nlp.git"`, or clone the repository and run `pip install -e .`. See [Which version has what](../installation.md#which-version-has-what).
-
-
 Three tools, for three jobs.
 
 | Tool | Use it to |

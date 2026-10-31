@@ -39,7 +39,7 @@ pip install "sindhi-nlp[api]"             # add the HTTP API
 pip install "sindhi-nlp[plots]"           # add confusion-matrix and comparison charts
 ```
 
-The `plots` extra, `sindhi-nlp --version` and the `evaluate` tool below are on `main` and arrive with the next release after 0.1.1; to use them now, install from GitHub: `pip install "sindhi-nlp[plots,transformers] @ git+https://github.com/alinawazcode/sindhi-nlp.git"`.
+The `plots` extra, `sindhi-nlp --version` and the `evaluate` tool below need version 0.1.2 or newer (`pip install --upgrade sindhi-nlp`).
 
 The first time you use the published model it downloads about 1.1 GB, which takes a few minutes on a slow connection. It is cached afterwards.
 
@@ -191,7 +191,7 @@ The code and the trained model weights are released under the MIT License (see [
   title   = {sindhi-nlp: Sentiment classification for Sindhi text},
   year    = {2026},
   url     = {https://github.com/alinawazcode/sindhi-nlp},
-  version = {0.1.1}
+  version = {0.1.2}
 }
 ```
 

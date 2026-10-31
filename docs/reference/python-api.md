@@ -88,7 +88,7 @@ See [Text preprocessing](../guide/preprocessing.md).
 
 ## Evaluation (`sindhi_nlp.evaluation`)
 
-The `evaluate`, `error_analysis` and `plots` modules were added after 0.1.1; see [Which version has what](../installation.md#which-version-has-what).
+The `evaluate`, `error_analysis` and `plots` modules were added in 0.1.2; see [Which version has what](../installation.md#which-version-has-what).
 
 | Name | Description |
 | --- | --- |

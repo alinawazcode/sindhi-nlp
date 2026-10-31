@@ -36,7 +36,7 @@ Run a single worker. Each extra worker process loads its own copy of the model.
   "model_loaded": true,
   "model": "xlmr_mixed",
   "backend": "transformers",
-  "package_version": "0.1.1",
+  "package_version": "0.1.2",
   "detail": null
 }
 ```

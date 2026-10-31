@@ -66,7 +66,12 @@ def build_parser() -> argparse.ArgumentParser:
         "finalize-model", help="Save the text-cleaning options next to a model (writes preprocessing.json)"
     )
     finalize.add_argument("--model-dir", required=True)
-    finalize.add_argument("--base-config", default=DEFAULT_BASE_CONFIG)
+    finalize.add_argument(
+        "--base-config",
+        default=DEFAULT_BASE_CONFIG,
+        help="Config whose data.cleaning section is saved (default: configs/base.yaml, "
+        "or the built-in defaults when that file does not exist, e.g. after pip install)",
+    )
     return parser
 
 
@@ -168,12 +173,18 @@ def cmd_info(args: argparse.Namespace) -> int:
 
 def cmd_finalize(args: argparse.Namespace) -> int:
     """``finalize-model``: save the cleaning settings next to a model so inference reproduces training."""
-    cfg = load_config(args.base_config)
-    options = CleaningOptions.from_config((cfg.get("data") or {}).get("cleaning"))
+    if args.base_config == DEFAULT_BASE_CONFIG and not Path(args.base_config).is_file():
+        # pip installs do not ship configs/; the built-in defaults equal configs/base.yaml.
+        options = CleaningOptions()
+        source = "built-in defaults (configs/base.yaml not found)"
+    else:
+        cfg = load_config(args.base_config)
+        options = CleaningOptions.from_config((cfg.get("data") or {}).get("cleaning"))
+        source = f"{args.base_config} data.cleaning"
     model_dir = Path(args.model_dir)
     if not model_dir.is_dir():
         raise ModelNotFoundError(f"Model folder not found: {model_dir}")
-    path = write_preprocessing_config(model_dir, options, source=f"{args.base_config} data.cleaning")
+    path = write_preprocessing_config(model_dir, options, source=source)
     print(f"Wrote {path}")
     return 0
 
