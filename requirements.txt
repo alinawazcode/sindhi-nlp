@@ -11,7 +11,7 @@ joblib==1.6.0
 pyyaml==6.0.3
 
 # --- XLM-RoBERTa training and inference ---
-torch==2.13.0
+torch==2.14.1
 transformers==5.17.0
 accelerate==1.15.0
 
