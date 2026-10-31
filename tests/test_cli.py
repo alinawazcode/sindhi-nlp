@@ -103,3 +103,28 @@ def test_finalize_model_writes_preprocessing_json(project, capsys):
     assert saved["cleaning"]["unicode_form"] == "NFKC" and saved["cleaning"]["remove_tatweel"] is True
     assert SentimentPredictor.from_pretrained(model_dir).info.preprocessing_source == "preprocessing.json"
     assert main(["finalize-model", "--model-dir", str(project / "missing")]) == 1
+
+
+def test_finalize_model_without_configs_folder_uses_builtin_defaults(tmp_path, monkeypatch, capsys):
+    """After ``pip install`` there is no configs/ folder; finalize-model must still work."""
+    monkeypatch.chdir(tmp_path)
+    model_dir = tmp_path / "model"
+    model_dir.mkdir()
+    assert main(["finalize-model", "--model-dir", str(model_dir)]) == 0
+    saved = json.loads((model_dir / "preprocessing.json").read_text("utf-8"))
+    assert saved["cleaning"]["unicode_form"] == "NFKC"
+    assert "built-in defaults" in saved["source"]
+
+
+def test_finalize_model_explicit_missing_config_is_an_error(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "model").mkdir()
+    assert main(["finalize-model", "--model-dir", "model", "--base-config", "mine.yaml"]) == 1
+    assert "Config file not found" in capsys.readouterr().err
+
+
+def test_missing_repo_config_error_mentions_github(tmp_path):
+    from sindhi_nlp.utils.config import ConfigError, load_yaml
+
+    with pytest.raises(ConfigError, match="GitHub repository"):
+        load_yaml("configs/base.yaml.nope")

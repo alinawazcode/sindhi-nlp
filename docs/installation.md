@@ -64,7 +64,7 @@ sindhi-nlp --version
 python -c "import sindhi_nlp; print(sindhi_nlp.__version__)"
 ```
 
-Both print the same version. (`--version` was added after 0.1.1; with 0.1.1 or earlier the command prints a usage error instead. See [Which version has what](#which-version-has-what).) To check that a model loads and runs:
+Both print the same version. (`--version` was added in 0.1.2; with 0.1.1 or earlier the command prints a usage error instead. See [Which version has what](#which-version-has-what).) To check that a model loads and runs:
 
 ```bash
 sindhi-nlp predict "اڄ جو ڏينهن تمام سٺو آهي" --model-dir alinawazmahar/sindhi-sentiment-xlmr
@@ -72,21 +72,24 @@ sindhi-nlp predict "اڄ جو ڏينهن تمام سٺو آهي" --model-dir ali
 
 ## Which version has what
 
-Version 0.1.1 is the latest release on PyPI. The repository's `main` branch has these additions, which arrive with the next release:
+Version 0.1.2 is the latest release on PyPI. It added the following to 0.1.1:
 
-| Added after 0.1.1 | Where it is described |
+| Added in 0.1.2 | Where it is described |
 | --- | --- |
 | `python -m sindhi_nlp.evaluation.evaluate`, `error_analysis`, `plots` | [Evaluation tools](reference/evaluation.md) |
 | `sindhi-nlp --version`, `python -m sindhi_nlp` | [Command line](guide/cli.md) |
 | `plots` and `docs` extras, `py.typed` | this page |
 | `configs/xlmr_mixed.yaml` (reproduces the published model) | [Configuration files](reference/configuration.md) |
 | Clean `Error:` message from `evaluate_external` instead of a traceback | [Errors](reference/errors.md) |
+| `finalize-model` works after `pip install` (no `configs/` folder needed) | [Command line](guide/cli.md) |
 
-Everything else in this documentation, including the SDK, the CLI commands `predict`, `batch`, `info` and `finalize-model`, and the HTTP API, is in 0.1.1. To use the additions now:
+Everything else in this documentation, including the SDK, the CLI commands `predict`, `batch`, `info` and `finalize-model`, and the HTTP API, is in 0.1.1 and 0.1.2. To get the additions, upgrade:
 
 ```bash
-pip install "sindhi-nlp[plots,transformers] @ git+https://github.com/alinawazcode/sindhi-nlp.git"
+pip install --upgrade sindhi-nlp
 ```
+
+The `configs/` folder (used by training, data preparation and `compare_models`) is part of the GitHub repository and is not installed by pip. Clone the repository to use those tools.
 
 ## Upgrade or uninstall
 

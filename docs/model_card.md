@@ -14,7 +14,7 @@
 | Author | Ali Nawaz |
 | Contact | alinawaz.code@gmail.com |
 | License | Model weights are free to use under the MIT License, the same license as the base model `xlm-roberta-base`. The natural dataset is not included. |
-| Version | 0.1.1 |
+| Version | 0.1.2 |
 
 ## Intended use
 

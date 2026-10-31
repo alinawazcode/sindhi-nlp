@@ -8,7 +8,7 @@ sindhi-nlp [-h] [--version] [--log-level LOG_LEVEL] {predict,batch,info,finalize
 
 | Global option | Meaning |
 | --- | --- |
-| `--version` | print `sindhi-nlp <version>` and exit (added after 0.1.1; see [Which version has what](../installation.md#which-version-has-what)) |
+| `--version` | print `sindhi-nlp <version>` and exit (added in 0.1.2; see [Which version has what](../installation.md#which-version-has-what)) |
 | `--log-level` | logging level on stderr, e.g. `DEBUG`, `INFO`, `WARNING` (default) |
 
 ## Which model is used?
@@ -141,6 +141,8 @@ Writes `preprocessing.json` next to a model you trained, recording the cleaning 
 sindhi-nlp finalize-model --model-dir artifacts/models/xlmr_mixed
 sindhi-nlp finalize-model --model-dir artifacts/models/xlmr_mixed --base-config configs/base.yaml
 ```
+
+From 0.1.2 the command also works after a plain `pip install`, where there is no `configs/` folder: without `--base-config` it uses the built-in cleaning defaults, which are identical to `configs/base.yaml`. Pass `--base-config` to use your own settings.
 
 Without this file, a model falls back to the default cleaning options and `info` shows `preprocessing_source: defaults (no preprocessing.json found)`. The default matches `configs/base.yaml`, so this only matters if you changed the cleaning settings. See [Text preprocessing](preprocessing.md).
 

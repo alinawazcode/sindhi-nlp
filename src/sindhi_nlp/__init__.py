@@ -16,7 +16,7 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 _LAZY_EXPORTS = {
     "SentimentPredictor": "sindhi_nlp.inference.predictor",
