@@ -71,6 +71,7 @@ def synthetic_overlap(
 
 
 def text_statistics(df: pd.DataFrame, labels: list[str], text_col: str, label_col: str) -> dict[str, Any]:
+    """Word-count and vocabulary statistics of a labeled frame, used in the preparation summary."""
     words = df[text_col].map(lambda text: len(text.split()))
     per_label = {
         label: {
@@ -91,6 +92,7 @@ def run_external_prep(
     external_config_path: str | Path = "configs/external.yaml",
     project_root: str | Path = ".",
 ) -> dict[str, Any]:
+    """Clean, validate, de-duplicate and split a human-labeled CSV into train, validation and test files."""
     root = Path(project_root).resolve()
     base = load_base_config(base_config_path)
     ext = load_config(external_config_path, required=REQUIRED_KEYS)
@@ -184,6 +186,7 @@ def run_external_prep(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Command-line entry point of the external data preparation."""
     parser = argparse.ArgumentParser(description="Prepare the human-labeled natural Sindhi dataset.")
     parser.add_argument("--config", default="configs/base.yaml")
     parser.add_argument("--external-config", default="configs/external.yaml")

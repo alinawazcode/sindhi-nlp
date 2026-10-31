@@ -13,6 +13,7 @@ from .trainer import train_model
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Command-line entry point: fine-tune XLM-RoBERTa from a config file."""
     parser = argparse.ArgumentParser(description="Fine-tune XLM-RoBERTa for Sindhi sentiment.")
     parser.add_argument("--config", default="configs/xlm_roberta_base.yaml")
     parser.add_argument("--base-config", default="configs/base.yaml")

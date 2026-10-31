@@ -171,3 +171,25 @@ def test_evaluate_requires_a_model(ext_project):
             base_config_path=base,
             project_root=root,
         )
+
+
+def test_cli_reports_the_one_time_rule_without_a_traceback(evaluated_project, capsys):
+    from sindhi_nlp.evaluation.evaluate_external import main
+
+    root, base, model_dir = evaluated_project
+    args = [
+        "--model-dir",
+        str(model_dir),
+        "--split",
+        "test",
+        "--config",
+        str(base),
+        "--project-root",
+        str(root),
+    ]
+    assert main(args) == 1
+    err = capsys.readouterr().err
+    assert err.startswith("Error:") and "--final" in err
+    assert main([*args, "--final"]) == 0
+    assert main([*args, "--final"]) == 1
+    assert "already" in capsys.readouterr().err

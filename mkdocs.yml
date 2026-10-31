@@ -1,0 +1,95 @@
+site_name: sindhi-nlp
+site_description: Sentiment classification for Sindhi text - Python SDK, command line, HTTP API and a reproducible training pipeline.
+site_url: https://alinawazcode.github.io/sindhi-nlp/
+repo_url: https://github.com/alinawazcode/sindhi-nlp
+repo_name: alinawazcode/sindhi-nlp
+edit_uri: edit/main/docs/
+exclude_docs: |
+  archive/
+copyright: Copyright &copy; 2026 Ali Nawaz. MIT License.
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: [.]
+      check_paths: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: installation.md
+      - Quickstart: quickstart.md
+  - User guide:
+      - Python SDK: guide/python-sdk.md
+      - Command line: guide/cli.md
+      - HTTP API: api.md
+      - Text preprocessing: guide/preprocessing.md
+      - Choosing a model: guide/choosing-a-model.md
+      - Docker: guide/docker.md
+  - Tutorials:
+      - Overview: tutorials/index.md
+      - Classify a CSV file: tutorials/classify-csv.md
+      - Evaluate on your own data: tutorials/evaluate-own-data.md
+      - Train on your own data: tutorials/train-own-data.md
+      - Serve the API: tutorials/serve-api.md
+  - Concepts:
+      - Confidence scores: concepts/confidence.md
+      - Evaluation method: concepts/evaluation-method.md
+      - Error analysis: concepts/error-analysis.md
+      - Architecture: architecture.md
+  - Reference:
+      - Python API: reference/python-api.md
+      - Configuration files: reference/configuration.md
+      - Evaluation tools: reference/evaluation.md
+      - Data pipeline: reference/data-pipeline.md
+      - Errors: reference/errors.md
+  - Project:
+      - Results: results.md
+      - Dataset: dataset.md
+      - Model card: model_card.md
+      - Publishing a release: publishing.md
+      - FAQ and troubleshooting: faq.md
+      - Roadmap and known gaps: roadmap.md
+      - Changelog: changelog.md
+      - Contributing: contributing.md

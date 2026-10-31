@@ -43,6 +43,7 @@ def exact_mcnemar(only_a_wrong: int, only_b_wrong: int) -> float:
 
 
 def load_run(model: str, tag: str, split: str, metrics_dir: Path, reports_dir: Path, text_col: str) -> dict[str, Any]:
+    """Load a model's saved metrics and mistake list for one split."""
     metrics_path = metrics_dir / f"{model}_{tag}_{split}.json"
     errors_path = reports_dir / f"{model}_{tag}_{split}_misclassified.csv"
     for path in (metrics_path, errors_path):
@@ -76,6 +77,7 @@ def compare_models(
     base_config_path: str | Path = "configs/base.yaml",
     project_root: str | Path = ".",
 ) -> dict[str, Any]:
+    """Compare two scored models on the same sentences with accuracy intervals and McNemar's exact test."""
     root = Path(project_root).resolve()
     base = load_base_config(base_config_path)
     text_col = base["columns"]["text"]
@@ -117,6 +119,7 @@ def compare_models(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Command-line entry point of the paired model comparison."""
     parser = argparse.ArgumentParser(description="Paired comparison of two scored models.")
     parser.add_argument("--a", required=True, help="First model name (folder name under artifacts/models)")
     parser.add_argument("--b", required=True, help="Second model name")

@@ -27,11 +27,13 @@ INVALID: dict[int | str, dict[str, Any]] = {422: {"model": ErrorResponse, "descr
 
 
 def get_service(request: Request) -> ModelService:
+    """FastAPI dependency returning the model service stored on the application."""
     service = getattr(request.app.state, "service", None)
     return service if service is not None else ModelService(error="The service is still starting")
 
 
 def get_settings(request: Request) -> Settings:
+    """FastAPI dependency returning the settings stored on the application."""
     return request.app.state.settings
 
 

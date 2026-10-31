@@ -8,7 +8,7 @@ This project uses two datasets with very different roles. Only the human-labeled
 | Labels | negative / neutral / positive | negative / neutral / positive |
 | Class balance | 1,500 / 1,419 / 1,501 | 50,000 each |
 | Origin | Awaz and other articles and newspapers | Generated from sentence templates |
-| Labeled by | One human annotator | Assigned by the generator |
+| Labeled by | One human annotator (the author) | Assigned by the generator |
 | Used for | Training, validation, test, all reported results | Pipeline testing; optional extra training data |
 | In this repository | No (see below) | No |
 
@@ -29,16 +29,14 @@ This project uses two datasets with very different roles. Only the human-labeled
 | Test | 884 | 300 | 284 | 300 | Scored once per model |
 
 **Quality and limits.**
-- One annotator labeled the data. No second annotator reviewed it, so agreement between annotators is unknown.
-- A written definition of the `neutral` class is not part of this documentation. Neutral sentences appear to be mostly factual, news-style statements; the baseline's strongest neutral features are topic words such as city, market, hospital, and budget. A model may therefore partly learn topic instead of sentiment for that class.
-- The sentences come from published sources, so redistribution may be restricted. Check the dataset page for its terms.
+- One annotator (the author) labeled the data. No second annotator reviewed it, so agreement between annotators is unknown.
+- **Neutral class.** The annotator (the project author) labeled a sentence `neutral` when it reads as normal, everyday conversation rather than expressing a clearly positive or negative feeling. This is a working definition from one person, not a written annotation guideline. The baseline's strongest neutral features are topic words such as city, market, hospital, and budget, so a model may partly learn topic instead of sentiment for that class.
+- **License.** The dataset is released on Kaggle under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): you may share and adapt it, including commercially, if you credit the author, link the license, mark changes, and release derived datasets under the same license. The sentences were collected from published sources, so consider how that affects your own use.
 - None of the sentences also appear in the synthetic data's train or validation splits.
 
 ## Synthetic dataset
 
 **What it is.** 150,000 machine-generated sentences, 50,000 per label. An audit of the data showed they are built from templates: each sentence combines a city, a place, an event, and a weekday, with an explicit sentiment phrase. Across the training split there are only about 2,400 distinct words, and many sentences are the same sentence with a different weekday.
-
-**How it was produced.** *(Author to complete: describe the generator, its template lists, and the license of the output.)*
 
 **Splits.** Stratified 80/10/10 with seed 42: 120,000 train, 15,000 validation, 15,000 test, with equal classes in each. Texts that differ only by weekday are kept in the same split. Without this, 23.9% of validation sentences had a weekday twin in the training set.
 

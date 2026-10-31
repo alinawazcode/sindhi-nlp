@@ -33,6 +33,8 @@ class BatchTooLargeError(ValueError):
 
 @dataclass(frozen=True)
 class Settings:
+    """Runtime settings for the HTTP service, read from the inference config and environment."""
+
     config_path: Path
     project_root: Path
     max_batch_size: int = DEFAULT_MAX_BATCH_SIZE
@@ -95,23 +97,28 @@ class ModelService:
 
     @property
     def loaded(self) -> bool:
+        """True when a predictor is loaded and ready to serve requests."""
         return self._predictor is not None
 
     @property
     def info(self) -> ModelInfo:
+        """Details of the loaded model. Raises ``ModelUnavailableError`` if none is loaded."""
         return self.require().info
 
     def require(self) -> SentimentPredictor:
+        """Return the loaded predictor, or raise ``ModelUnavailableError`` explaining why there is none."""
         if self._predictor is None:
             raise ModelUnavailableError(self.error or "The model is not loaded yet")
         return self._predictor
 
     def predict(self, text: str) -> Prediction:
+        """Classify one text under the model lock, so concurrent requests never share the model unsafely."""
         predictor = self.require()
         with self._lock:
             return predictor.predict(text)
 
     def predict_batch(self, texts: Sequence[str]) -> list[Prediction]:
+        """Classify several texts under the model lock, keeping the input order."""
         predictor = self.require()
         with self._lock:  # one inference at a time; model objects are not guaranteed thread-safe
             return predictor.predict_batch(texts, errors="raise")  # type: ignore[return-value]

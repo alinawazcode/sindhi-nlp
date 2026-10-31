@@ -58,3 +58,6 @@ dist/
 Thumbs.db
 .vscode/
 pip-uninstall-*/
+
+# ---- Built documentation site ----
+site/

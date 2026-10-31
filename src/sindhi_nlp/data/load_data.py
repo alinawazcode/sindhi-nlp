@@ -12,6 +12,7 @@ from .validate_data import DataValidationError
 
 
 def file_sha256(path: str | Path) -> str:
+    """SHA-256 of a file, recorded in the split report so results can be tied to exact input files."""
     digest = hashlib.sha256()
     with Path(path).open("rb") as handle:
         for chunk in iter(lambda: handle.read(1 << 20), b""):
@@ -31,6 +32,7 @@ def read_csv(path: str | Path) -> pd.DataFrame:
 
 
 def verify_columns(df: pd.DataFrame, expected: Iterable[str], source: str = "data") -> None:
+    """Raise ``DataValidationError`` if any expected column is missing."""
     missing = [c for c in expected if c not in df.columns]
     if missing:
         raise DataValidationError(f"{source}: missing column(s) {missing}; found {list(df.columns)}")

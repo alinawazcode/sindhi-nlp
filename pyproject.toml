@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Text Processing :: Linguistic",
 ]
@@ -39,6 +40,10 @@ transformers = ["torch>=2.2", "transformers>=4.41", "accelerate>=0.26"]
 api = ["fastapi>=0.110", "uvicorn>=0.29"]
 # Loading models by Hugging Face name and publishing them.
 hub = ["huggingface_hub>=0.23"]
+# Charts: confusion matrices and model comparisons.
+plots = ["matplotlib>=3.7"]
+# Building the documentation site.
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5"]
 # Tests, linting, and type checking.
 dev = [
     "pytest>=7.4",
@@ -47,6 +52,7 @@ dev = [
     "mypy>=2.4,<3",
     "types-PyYAML",
     "pandas-stubs",
+    "matplotlib>=3.7",
 ]
 
 [project.scripts]
@@ -55,7 +61,9 @@ sindhi-nlp = "sindhi_nlp.cli.main:main"
 [project.urls]
 Homepage = "https://github.com/alinawazcode/sindhi-nlp"
 Repository = "https://github.com/alinawazcode/sindhi-nlp"
+Documentation = "https://alinawazcode.github.io/sindhi-nlp/"
 Issues = "https://github.com/alinawazcode/sindhi-nlp/issues"
+Changelog = "https://github.com/alinawazcode/sindhi-nlp/blob/main/CHANGELOG.md"
 Model = "https://huggingface.co/alinawazmahar/sindhi-sentiment-xlmr"
 
 [tool.setuptools.dynamic]
@@ -63,6 +71,9 @@ version = { attr = "sindhi_nlp.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+sindhi_nlp = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

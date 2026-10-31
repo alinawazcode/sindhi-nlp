@@ -41,6 +41,8 @@ def error_response(status: int, code: str, message: str, details: list[dict[str,
 
 
 def register_error_handlers(app: FastAPI) -> None:
+    """Install handlers that turn every error into the service's single JSON error shape."""
+
     @app.exception_handler(RequestValidationError)
     async def _validation(request: Request, exc: RequestValidationError) -> JSONResponse:
         # Field paths and messages only: the submitted text is never echoed back or logged.
@@ -83,6 +85,7 @@ def create_app(predictor: SentimentPredictor | None = None, settings: Settings |
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        """Load the model once when the server starts and release it when the server stops."""
         if app.state.service is None:
             app.state.service = ModelService.from_settings(settings)
         yield

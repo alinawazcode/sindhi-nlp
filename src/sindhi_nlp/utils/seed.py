@@ -10,6 +10,7 @@ import numpy as np
 
 
 def set_seed(seed: int) -> None:
+    """Seed Python, NumPy and (when installed) PyTorch so a run can be repeated. Raises ``ValueError`` for a negative or non-integer seed."""
     if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
         raise ValueError(f"seed must be a non-negative integer, got {seed!r}")
 

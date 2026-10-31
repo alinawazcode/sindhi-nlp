@@ -52,6 +52,7 @@ REQUIRED_KEYS = (
 
 
 def validate_training_config(cfg: Mapping[str, Any]) -> None:
+    """Raise ``ConfigError`` if the training config is missing keys or has invalid values."""
     datasets = cfg["datasets"]
     if not isinstance(datasets, Mapping) or not datasets:
         raise ConfigError("datasets must map dataset names to folders")
@@ -75,6 +76,7 @@ def validate_training_config(cfg: Mapping[str, Any]) -> None:
 
 
 def load_training_config(path: str | Path) -> dict[str, Any]:
+    """Load a training config (``configs/xlm_roberta_base.yaml``) and validate it."""
     cfg = load_config(path, required=REQUIRED_KEYS)
     validate_training_config(cfg)
     return cfg
@@ -85,6 +87,8 @@ def load_training_config(path: str | Path) -> dict[str, Any]:
 
 @dataclass
 class DataBundle:
+    """The encoded train, validation and optional test data used by one training run."""
+
     train: pd.DataFrame
     validation: pd.DataFrame
     report: dict[str, pd.DataFrame] = field(default_factory=dict)
@@ -102,6 +106,7 @@ def load_split(
     label_col: str,
     hashes: dict[str, str] | None = None,
 ) -> pd.DataFrame:
+    """Read one split CSV, drop rows without text or with an unknown label, and map labels to integers."""
     if split not in ALLOWED_SPLITS:
         raise ValueError(f"Training only reads {ALLOWED_SPLITS}; the test split is reserved for the final evaluation")
     path = root / cfg["datasets"][source] / f"{split}.csv"
@@ -123,6 +128,7 @@ def stratified_sample(df: pd.DataFrame, n: int | None, seed: int, label_col: str
 def build_datasets(
     cfg: Mapping[str, Any], base_cfg: Mapping[str, Any], root: Path, seed: int, smoke: bool = False
 ) -> DataBundle:
+    """Load the splits named in the config, optionally sample them, and encode them for the model."""
     labels = list(base_cfg["labels"])
     text_col, label_col = base_cfg["columns"]["text"], base_cfg["columns"]["label"]
     hashes: dict[str, str] = {}
@@ -331,6 +337,7 @@ def _remove_checkpoints(path: Path) -> None:
 
 
 def format_run_summary(report: Mapping[str, Any]) -> str:
+    """Render the training report as the Markdown summary saved under ``artifacts/reports/``."""
     lines = [
         f"# XLM-RoBERTa run: {report['run_name']}",
         "",
@@ -358,6 +365,7 @@ def train_model(
     smoke: bool = False,
     overwrite: bool = False,
 ) -> dict[str, Any]:
+    """Fine-tune the model described by a config and return the report (metrics, settings and paths). Needs the ``train`` extra."""
     root = Path(project_root).resolve()
     base = load_base_config(base_config_path)
     cfg = load_training_config(config_path)
