@@ -23,7 +23,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - run: pip install "mkdocs>=1.6,<2" mkdocs-material
       - run: mkdocs build --strict
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
