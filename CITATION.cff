@@ -7,10 +7,9 @@ authors:
     given-names: Ali
     email: alinawaz.code@gmail.com
 version: 0.1.2
-date-released: 2026-10-20
+date-released: 2026-10-31
 license: MIT
 repository-code: "https://github.com/alinawazcode/sindhi-nlp"
 url: "https://alinawazcode.github.io/sindhi-nlp/"
 keywords: [sindhi, nlp, sentiment-analysis, xlm-roberta]
-# Add after your first Zenodo release:
-# doi: 10.5281/zenodo.XXXXXXX
+doi: 10.5281/zenodo.23832590

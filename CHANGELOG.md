@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Zenodo DOI (10.5281/zenodo.23832590) added to the README and `CITATION.cff`.
+
 ## 0.1.2 - 2026-10-31
 
 ### Added
