@@ -21,7 +21,7 @@ uvicorn==0.53.0
 pydantic==2.13.4
 
 # --- tests, linting, type checking ---
-pytest==9.1.1
+pytest==9.2.0
 httpx==0.28.1
 ruff>=0.17,<0.18
 mypy>=2.4,<3
