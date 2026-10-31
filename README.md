@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/alinawazcode/sindhi-nlp/main/assets/sindhi-nlp-icon.png" alt="sindhi-nlp logo" width="160">
+</p>
+
 # sindhi-nlp
 
 [![tests](https://github.com/alinawazcode/sindhi-nlp/actions/workflows/tests.yml/badge.svg)](https://github.com/alinawazcode/sindhi-nlp/actions/workflows/tests.yml)
@@ -104,6 +108,7 @@ The model named in `configs/inference.yaml` is loaded at startup. Open <http://1
 Full guides live on the [documentation site](https://alinawazcode.github.io/sindhi-nlp/):
 
 - [Installation](https://alinawazcode.github.io/sindhi-nlp/installation/) and [Quickstart](https://alinawazcode.github.io/sindhi-nlp/quickstart/)
+- [Complete examples](https://alinawazcode.github.io/sindhi-nlp/examples/): runnable scripts for text, CSV files, bad input, the API and evaluation (also in the [`examples/`](examples/) folder)
 - [Python SDK](https://alinawazcode.github.io/sindhi-nlp/guide/python-sdk/), [Command line](https://alinawazcode.github.io/sindhi-nlp/guide/cli/), [HTTP API](https://alinawazcode.github.io/sindhi-nlp/api/)
 - Tutorials: [classify a CSV](https://alinawazcode.github.io/sindhi-nlp/tutorials/classify-csv/), [evaluate on your own data](https://alinawazcode.github.io/sindhi-nlp/tutorials/evaluate-own-data/), [train on your own data](https://alinawazcode.github.io/sindhi-nlp/tutorials/train-own-data/)
 - [Results](https://alinawazcode.github.io/sindhi-nlp/results/), [model card](https://alinawazcode.github.io/sindhi-nlp/model_card/), [FAQ](https://alinawazcode.github.io/sindhi-nlp/faq/), [roadmap and known gaps](https://alinawazcode.github.io/sindhi-nlp/roadmap/)
