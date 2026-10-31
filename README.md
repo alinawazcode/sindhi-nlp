@@ -4,6 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/sindhi-nlp)](https://pypi.org/project/sindhi-nlp/)
 [![Python](https://img.shields.io/pypi/pyversions/sindhi-nlp)](https://pypi.org/project/sindhi-nlp/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/alinawazcode/sindhi-nlp/blob/main/LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23832590.svg)](https://doi.org/10.5281/zenodo.23832590)
 [![Model on Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97-model-yellow)](https://huggingface.co/alinawazmahar/sindhi-sentiment-xlmr)
 
 **Documentation: <https://alinawazcode.github.io/sindhi-nlp/>**
@@ -191,11 +192,11 @@ The code and the trained model weights are released under the MIT License (see [
   title   = {sindhi-nlp: Sentiment classification for Sindhi text},
   year    = {2026},
   url     = {https://github.com/alinawazcode/sindhi-nlp},
-  version = {0.1.2}
+  version = {0.1.2},
+  doi     = {10.5281/zenodo.23832590}
 }
 ```
 
-<!-- DOI: after your first Zenodo release, add `doi = {10.5281/zenodo.XXXXXXX}` to the entry above and a `doi:` line to CITATION.cff -->
 
 ## Author
 
